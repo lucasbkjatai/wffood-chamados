@@ -6,961 +6,1106 @@
 <title>WFFOOD — Sistema de Chamados</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
-:root{--red:#e53935;--red-dark:#c62828;--sidebar:#1a1a1a;--bg:#f4f4f4;--white:#ffffff;--border:#e0e0e0;--text:#1a1a1a;--text2:#666;--green:#43a047;--blue:#1565c0;--purple:#6a1b9a}
-body{background:var(--bg);color:var(--text)}
+:root{
+  --red:#e53935;--red-dark:#c62828;--red-light:#ffebee;
+  --sidebar:#1a1a1a;--bg:#f0f2f5;--white:#fff;
+  --border:#e0e0e0;--border2:#f0f0f0;
+  --text:#1a1a1a;--text2:#757575;--text3:#9e9e9e;
+  --green:#2e7d32;--green-bg:#e8f5e9;--green-bd:#c8e6c9;
+  --blue:#1565c0;--blue-bg:#e3f2fd;--blue-bd:#bbdefb;
+  --purple:#6a1b9a;--purple-bg:#f3e5f5;
+  --orange:#e65100;--orange-bg:#fff3e0;--orange-bd:#ffe0b2;
+  --yellow-bg:#fffde7;--yellow-bd:#fff176;
+  --shadow:0 1px 4px rgba(0,0,0,0.08);
+  --shadow2:0 4px 16px rgba(0,0,0,0.1);
+}
+body{background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
 
-/* LOGIN */
-#login-screen{min-height:100vh;background:#222;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
-.login-logo{text-align:center;margin-bottom:28px}
-.login-logo h1{color:#fff;font-size:32px;font-weight:800;letter-spacing:-1px}
+/* ===== LOGIN ===== */
+#login-screen{
+  min-height:100vh;background:#1e1e1e;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;
+}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo h1{color:#fff;font-size:40px;font-weight:900;letter-spacing:-2px}
 .login-logo h1 span{color:var(--red)}
-.login-logo p{color:rgba(255,255,255,0.4);font-size:13px;margin-top:4px}
-.login-card{background:var(--red);border-radius:14px;padding:32px;width:100%;max-width:380px}
-.login-card label{display:block;color:rgba(255,255,255,0.9);font-size:12px;font-weight:500;margin-bottom:6px}
-.login-card input{width:100%;padding:10px 14px;border-radius:8px;border:none;font-size:14px;margin-bottom:16px;background:#fff;color:#333;outline:none}
-.login-card input:focus{box-shadow:0 0 0 3px rgba(255,255,255,0.3)}
-.forgot{color:rgba(255,255,255,0.7);font-size:12px;float:right;cursor:pointer;text-decoration:underline}
-.login-btn{width:100%;padding:12px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;transition:background 0.2s}
+.login-logo p{color:rgba(255,255,255,0.3);font-size:12px;margin-top:6px;letter-spacing:1px;text-transform:uppercase}
+.login-card{background:var(--red);border-radius:16px;padding:32px;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(229,57,53,0.35)}
+.lbl{display:flex;justify-content:space-between;align-items:center;color:rgba(255,255,255,0.9);font-size:12px;font-weight:600;margin-bottom:7px;text-transform:uppercase;letter-spacing:0.5px}
+.lbl a{color:rgba(255,255,255,0.6);font-size:11px;cursor:pointer;text-decoration:underline;text-transform:none;font-weight:400}
+.inp{width:100%;padding:12px 14px;border-radius:8px;border:2px solid transparent;font-size:14px;margin-bottom:16px;background:#fff;color:#333;outline:none;transition:border-color .2s}
+.inp:focus{border-color:rgba(255,255,255,0.5)}
+.chk-row{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.chk-row input{width:15px;height:15px;accent-color:#1a1a1a;cursor:pointer}
+.chk-row span{color:rgba(255,255,255,0.85);font-size:13px;cursor:pointer}
+.login-btn{width:100%;padding:14px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.5px;transition:background .2s}
 .login-btn:hover{background:#333}
-.login-error{background:rgba(0,0,0,0.2);color:#fff;padding:8px 12px;border-radius:6px;font-size:12px;margin-bottom:12px;display:none}
+.login-btn:disabled{opacity:.6;cursor:not-allowed}
+.login-err{background:rgba(0,0,0,.25);color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none;border-left:3px solid rgba(255,255,255,.5)}
 
-/* APP LAYOUT */
+/* ===== LAYOUT ===== */
 #app{display:none;height:100vh;overflow:hidden}
 .layout{display:flex;height:100vh}
-.sidebar{width:200px;min-width:200px;background:var(--sidebar);display:flex;flex-direction:column;transition:width 0.2s}
-.sidebar.collapsed{width:56px;min-width:56px}
-.brand{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.07)}
-.brand-inner{display:flex;align-items:center;gap:10px}
-.brand-icon{width:32px;height:32px;min-width:32px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:800;flex-shrink:0}
-.brand-text{overflow:hidden}
-.brand-name{color:#fff;font-size:13px;font-weight:700;white-space:nowrap}
-.brand-sub{color:rgba(255,255,255,0.35);font-size:10px;white-space:nowrap}
-nav{flex:1;padding:8px 0;overflow:hidden}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;color:rgba(255,255,255,0.5);font-size:13px;border-left:3px solid transparent;transition:all 0.15s;white-space:nowrap;overflow:hidden}
-.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.04)}
-.nav-item.active{color:#fff;background:rgba(229,57,53,0.15);border-left-color:var(--red)}
-.nav-item .icon{font-size:18px;flex-shrink:0;width:20px;text-align:center}
-.sidebar-foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.07)}
-.sidebar-foot-btn{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.3);font-size:11px;cursor:pointer;white-space:nowrap}
-.sidebar-foot-btn:hover{color:rgba(255,255,255,0.6)}
-.content{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.topbar{padding:12px 24px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
-.breadcrumb a{color:var(--text2);cursor:pointer;text-decoration:none}
-.breadcrumb a:hover{color:var(--text)}
-.breadcrumb .sep{opacity:0.4}
-.topbar-right{display:flex;align-items:center;gap:14px;position:relative}
-.topbar-info{text-align:right}
-.topbar-info .client-lbl{font-size:10px;color:var(--text2)}
-.topbar-info .client-name{font-size:12px;font-weight:600}
-.avatar-btn{width:32px;height:32px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;position:relative}
-.dropdown{position:absolute;top:40px;right:0;background:#fff;border:1px solid var(--border);border-radius:12px;padding:6px 0;width:220px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,0.12);display:none}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:220px;min-width:220px;background:var(--sidebar);
+  display:flex;flex-direction:column;transition:width .25s ease;flex-shrink:0
+}
+.sidebar.col{width:58px;min-width:58px}
+.sb-brand{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-brand-inner{display:flex;align-items:center;gap:10px}
+.sb-logo{width:36px;height:36px;min-width:36px;background:var(--red);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;flex-shrink:0}
+.sb-txt .sb-name{color:#fff;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden}
+.sb-txt .sb-sub{color:rgba(255,255,255,.3);font-size:10px;white-space:nowrap;margin-top:1px;text-transform:uppercase;letter-spacing:.5px}
+.sb-nav{flex:1;padding:10px 0;overflow:hidden}
+.nav-it{
+  display:flex;align-items:center;gap:10px;padding:11px 16px;
+  cursor:pointer;color:rgba(255,255,255,.45);font-size:13px;
+  border-left:3px solid transparent;transition:all .15s;white-space:nowrap;overflow:hidden
+}
+.nav-it:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.04)}
+.nav-it.on{color:#fff;background:rgba(229,57,53,.15);border-left-color:var(--red)}
+.nav-ico{font-size:18px;flex-shrink:0;width:22px;text-align:center}
+.nav-lbl{overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.sb-foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,.06)}
+.sb-foot-btn{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.25);font-size:11px;cursor:pointer;white-space:nowrap}
+.sb-foot-btn:hover{color:rgba(255,255,255,.5)}
+
+/* ===== TOPBAR ===== */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{
+  height:54px;padding:0 24px;background:var(--white);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;box-shadow:var(--shadow)
+}
+.bc{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.bc a{color:var(--text2);cursor:pointer;text-decoration:none;font-weight:500}
+.bc a:hover{color:var(--text);text-decoration:underline}
+.bc-sep{color:var(--text3)}
+.topbar-r{display:flex;align-items:center;gap:14px;position:relative}
+.tb-client{text-align:right}
+.tb-client .lbl-c{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.tb-client .name-c{font-size:12px;font-weight:700;color:var(--text)}
+.uav{
+  width:36px;height:36px;background:var(--red);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;
+  border:2px solid transparent;transition:border-color .15s;user-select:none
+}
+.uav:hover{border-color:rgba(229,57,53,.5)}
+.dropdown{
+  position:absolute;top:44px;right:0;
+  background:var(--white);border:1px solid var(--border);
+  border-radius:12px;padding:6px 0;width:240px;
+  z-index:300;box-shadow:var(--shadow2);display:none
+}
 .dropdown.open{display:block}
-.dd-head{padding:10px 16px 10px;border-bottom:1px solid var(--border)}
-.dd-username{font-size:13px;font-weight:600}
-.dd-email{font-size:11px;color:var(--text2);margin-top:2px}
-.dd-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;font-size:13px;transition:background 0.1s}
-.dd-item:hover{background:#f5f5f5}
-.dd-item .icon{font-size:16px;color:var(--text2)}
-.dd-separator{height:1px;background:var(--border);margin:4px 0}
-.dd-item.danger{color:var(--red)}
-.dd-item.danger .icon{color:var(--red)}
-.page-content{flex:1;overflow-y:auto;padding:24px}
+.dd-hd{padding:12px 16px 10px;border-bottom:1px solid var(--border2)}
+.dd-nm{font-size:13px;font-weight:700}
+.dd-em{font-size:11px;color:var(--text2);margin-top:2px}
+.dd-it{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;font-size:13px;transition:background .1s;color:var(--text);font-weight:500}
+.dd-it:hover{background:#f5f5f5}
+.dd-sep{height:1px;background:var(--border2);margin:4px 0}
+.dd-danger{color:var(--red)!important}
 
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:13px;color:var(--text);transition:all 0.15s;font-family:inherit}
-.btn:hover{background:#f5f5f5}
+/* ===== PAGE ===== */
+.page{flex:1;overflow-y:auto;padding:24px}
+.pg-title{font-size:20px;font-weight:800;margin-bottom:20px;color:var(--text)}
+
+/* ===== BUTTONS ===== */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 18px;border-radius:8px;border:1px solid var(--border);
+  background:var(--white);cursor:pointer;font-size:13px;color:var(--text);
+  transition:all .15s;font-family:inherit;font-weight:600;white-space:nowrap
+}
+.btn:hover{background:#f5f5f5;border-color:#ccc}
 .btn-primary{background:var(--red);color:#fff;border-color:var(--red)}
-.btn-primary:hover{background:var(--red-dark)}
-.btn-sm{padding:5px 12px;font-size:12px}
-.btn-icon{padding:6px 8px}
+.btn-primary:hover{background:var(--red-dark);border-color:var(--red-dark)}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn:disabled{opacity:.6;cursor:not-allowed}
 
-/* HOME */
-.home-title{font-size:20px;font-weight:700;margin-bottom:20px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
-.stat-card{background:#fff;border-radius:12px;padding:16px;border:1px solid var(--border)}
-.stat-num{font-size:28px;font-weight:700;margin-bottom:4px}
-.stat-lbl{font-size:12px;color:var(--text2)}
-.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.quick-card{background:#fff;border-radius:12px;padding:16px;border:1px solid var(--border)}
-.quick-card-title{font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.quick-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:13px;margin-bottom:8px;transition:all 0.15s;background:#fff;width:100%;text-align:left}
-.quick-btn:hover{border-color:var(--red);background:#fff5f5}
-.quick-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.recent-item{padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.recent-item:last-child{border-bottom:none}
-.recent-link{font-size:12px;color:var(--red);cursor:pointer;font-weight:500}
-.recent-link:hover{text-decoration:underline}
-.recent-date{font-size:10px;color:var(--text2);margin-top:2px}
+/* ===== CARD ===== */
+.card{background:var(--white);border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow)}
 
-/* FORMULÁRIOS */
-.section-title{font-size:18px;font-weight:700;margin-bottom:20px}
-.forms-layout{display:grid;grid-template-columns:200px 1fr 200px;gap:20px}
-.forms-sidebar{font-size:13px}
-.forms-sidebar-title{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
-.forms-sidebar-item{padding:7px 10px;border-radius:6px;cursor:pointer;color:var(--red);transition:background 0.1s}
-.forms-sidebar-item:hover{background:#f5f5f5}
-.cat-cards{display:flex;flex-direction:column;gap:12px}
-.cat-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:16px}
-.cat-card:hover{border-color:var(--red);box-shadow:0 2px 8px rgba(229,57,53,0.1)}
-.cat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
-.cat-icon.est{background:#e3f2fd;color:var(--blue)}
-.cat-icon.eqp{background:#e8f5e9;color:var(--green)}
-.cat-icon.ti{background:#f3e5f5;color:var(--purple)}
-.cat-info{}
-.cat-name{font-size:15px;font-weight:600;margin-bottom:4px}
-.cat-desc{font-size:12px;color:var(--text2)}
-.forms-recent-title{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
-.forms-recent-item{padding:7px 0;border-bottom:1px solid var(--border);font-size:11px}
-.forms-recent-item:last-child{border-bottom:none}
-.forms-recent-link{color:var(--red);cursor:pointer}
-
-/* FORM NOVO CHAMADO */
-.form-title{font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px}
-.form-card{background:#fff;border:1px solid var(--border);border-radius:12px;max-width:680px;overflow:hidden}
-.form-tab-bar{background:#f9f9f9;padding:0 20px;border-bottom:1px solid var(--border)}
-.form-tab{display:inline-block;padding:12px 0;font-size:13px;font-weight:600;color:var(--red);border-bottom:2px solid var(--red)}
-.form-body{padding:24px}
-.form-group{margin-bottom:20px}
-.form-label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
-.form-label .req{color:var(--red)}
-.form-select{padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;cursor:pointer;min-width:200px;outline:none;font-family:inherit}
-.form-select:focus{border-color:var(--red)}
-.form-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:inherit}
-.form-input:focus{border-color:var(--red)}
-.form-hint{font-size:11px;color:var(--text2);margin-bottom:6px}
-.form-textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;resize:vertical;min-height:100px;outline:none;font-family:inherit}
-.form-textarea:focus{border-color:var(--red)}
-.editor-wrap{border:1px solid var(--border);border-radius:8px;overflow:hidden}
-.editor-toolbar{background:#f5f5f5;padding:6px 10px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center}
-.editor-btn{padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;font-size:12px;font-family:inherit}
-.editor-btn:hover{background:#eee}
-.editor-toolbar textarea{border:none!important;border-radius:0!important}
-.upload-zone{border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;background:#fafafa}
-.upload-zone p{font-size:12px;color:var(--text2);margin-bottom:10px}
-.upload-zone-btns{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
-.form-submit{text-align:center;padding-top:8px;border-top:1px solid var(--border);margin-top:4px}
-.success-box{background:#e8f5e9;border:1px solid #a5d6a7;border-radius:12px;padding:32px;text-align:center;max-width:500px;margin:0 auto}
-.success-icon{width:56px;height:56px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;color:#fff}
-.success-title{font-size:17px;font-weight:700;color:#1b5e20;margin-bottom:6px}
-.success-sub{font-size:13px;color:#2e7d32;margin-bottom:20px}
-.success-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-
-/* CHAMADOS LIST */
-.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.filter-select{padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#fff;cursor:pointer;font-family:inherit}
-.table-wrap{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:#f9f9f9;padding:10px 14px;text-align:left;font-weight:600;font-size:11px;color:var(--text2);border-bottom:1px solid var(--border);white-space:nowrap}
-td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr.clickable:hover td{background:#fafafa;cursor:pointer}
-.table-empty{padding:40px;text-align:center;color:var(--text2);font-size:13px}
-
-/* BADGES */
-.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:500}
-.badge-aguardando{background:#e8f5e9;color:#2e7d32}
-.badge-atendimento{background:#e3f2fd;color:#1565c0}
-.badge-fechado{background:#f5f5f5;color:#666}
-.badge-baixa{background:#f9fbe7;color:#827717;border:1px solid #c5ca38}
-.badge-media{background:#fff3e0;color:#e65100}
-.badge-alta{background:#ffebee;color:#c62828}
+/* ===== BADGES ===== */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700;white-space:nowrap}
+.bw{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.ba{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.bf{background:#f5f5f5;color:#666;border:1px solid #e0e0e0}
+.bl{background:#f9fbe7;color:#827717;border:1px solid #dce775}
+.bm{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-bd)}
+.bh{background:var(--red-light);color:var(--red-dark);border:1px solid #ef9a9a}
 .dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
-.dot-green{background:#43a047}
-.dot-blue{background:#1e88e5}
-.dot-gray{background:#9e9e9e}
-.tlink{color:var(--red);font-weight:600;cursor:pointer}
-.tlink:hover{text-decoration:underline}
+.dg{background:#43a047}.db{background:#1e88e5}.dgr{background:#9e9e9e}
 
-/* TICKET DETAIL */
-.detail-layout{display:flex;height:100%;gap:0;min-height:0;overflow:hidden}
-.detail-main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
-.detail-header{padding:12px 20px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
-.detail-header .status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.detail-tabs-col{width:140px;min-width:140px;border-right:1px solid var(--border);padding:12px;background:#fff;flex-shrink:0}
-.detail-body{flex:1;display:flex;overflow:hidden}
-.detail-tab-item{padding:7px 10px;border-radius:6px;font-size:12px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
-.detail-tab-item:hover{background:#f5f5f5}
-.detail-tab-item.active{background:#f5f5f5;color:var(--text);font-weight:600}
-.tab-cnt{background:var(--red);color:#fff;font-size:10px;padding:1px 6px;border-radius:100px}
-.msgs-area{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px}
-.msg{border-radius:10px;padding:12px 16px}
-.msg-form{background:#e8f5e9;border:1px solid #a5d6a7}
-.msg-auto{background:#fff9c4;border:1px solid #f9a825}
-.msg-user{background:#f5f5f5;border:1px solid var(--border)}
-.msg-meta{font-size:11px;color:var(--text2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.msg-title{font-weight:700;font-size:13px;margin-bottom:8px}
-.msg-field{font-size:12px;margin-bottom:3px}
-.msg-field strong{font-weight:600}
-.msg-text{font-size:13px;line-height:1.5}
-.reply-bar{padding:12px 20px;background:#fff;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-shrink:0}
-.reply-input{flex:1;padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:inherit}
-.reply-input:focus{border-color:var(--red)}
-.detail-sidebar{width:260px;min-width:260px;border-left:1px solid var(--border);padding:16px;overflow-y:auto;background:#fff;flex-shrink:0}
-.detail-section-title{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.detail-row{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid #f0f0f0;gap:8px}
-.detail-row:last-child{border-bottom:none}
-.detail-row-lbl{font-size:11px;color:var(--text2);flex-shrink:0}
-.detail-row-val{font-size:11px;font-weight:500;text-align:right;max-width:140px}
-.actor-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.actor-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0}
+/* ===== HOME ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.stat-card{
+  background:var(--white);border-radius:12px;padding:20px;
+  border:1px solid var(--border);box-shadow:var(--shadow)
+}
+.stat-n{font-size:36px;font-weight:900;line-height:1.1;margin-bottom:6px}
+.stat-l{font-size:12px;color:var(--text2);font-weight:500}
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border2);font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px}
+.card-bd{padding:16px 18px}
+.rec-it{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border2)}
+.rec-it:last-child{border:none}
+.rec-lnk{font-size:12px;font-weight:700;cursor:pointer;color:var(--text);text-decoration:none}
+.rec-lnk:hover{color:var(--red);text-decoration:underline}
+.rec-dt{font-size:10px;color:var(--text3);margin-top:2px}
+.qbtn{
+  width:100%;display:flex;align-items:center;gap:10px;
+  padding:11px 14px;border-radius:9px;border:1px solid var(--border);
+  background:var(--white);cursor:pointer;font-size:13px;font-weight:600;
+  margin-bottom:8px;transition:all .15s;font-family:inherit
+}
+.qbtn:hover{border-color:var(--red);background:var(--red-light);color:var(--red-dark)}
+.qbtn:last-child{margin-bottom:0}
+.qdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
-/* ADMIN */
-.admin-grid{display:grid;gap:16px}
-.admin-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.admin-card-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.admin-card-title{font-size:14px;font-weight:600}
-.admin-card-body{padding:16px 20px}
-.user-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
-.user-row:last-child{border-bottom:none}
-.user-info{flex:1;min-width:0}
-.user-name{font-size:13px;font-weight:500}
-.user-email{font-size:11px;color:var(--text2)}
+/* ===== FORMULÁRIOS ===== */
+.cat-list{display:flex;flex-direction:column;gap:10px}
+.cat-card{
+  background:var(--white);border:1px solid var(--border);border-radius:12px;
+  padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;
+  transition:all .15s;box-shadow:var(--shadow)
+}
+.cat-card:hover{border-color:var(--red);box-shadow:0 4px 16px rgba(229,57,53,.12);transform:translateY(-1px)}
+.cat-ico{width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.ci-e{background:var(--blue-bg);color:var(--blue)}
+.ci-q{background:var(--green-bg);color:var(--green)}
+.ci-t{background:var(--purple-bg);color:var(--purple)}
+.cat-name{font-size:15px;font-weight:700;margin-bottom:3px}
+.cat-desc{font-size:12px;color:var(--text2)}
 
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;display:none}
-.modal-overlay.open{display:flex}
-.modal{background:#fff;border-radius:16px;padding:28px;width:100%;max-width:440px}
-.modal-title{font-size:17px;font-weight:700;margin-bottom:20px}
-.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+/* ===== FORM CHAMADO ===== */
+.form-card{background:var(--white);border:1px solid var(--border);border-radius:12px;max-width:680px;box-shadow:var(--shadow)}
+.form-tabs{background:#f8f8f8;padding:0 20px;border-bottom:1px solid var(--border);border-radius:12px 12px 0 0}
+.form-tab{display:inline-block;padding:12px 0;font-size:13px;font-weight:700;color:var(--red);border-bottom:3px solid var(--red)}
+.form-bd{padding:28px}
+.fg{margin-bottom:22px}
+.fl{display:block;font-size:11px;font-weight:700;margin-bottom:8px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.fl .req{color:var(--red)}
+.fhint{font-size:11px;color:var(--text3);margin-bottom:7px}
+.finp{
+  width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;
+  font-size:13px;outline:none;font-family:inherit;background:#fafafa;color:var(--text);transition:border-color .2s
+}
+.finp:focus{border-color:var(--red);background:#fff}
+.fsel{
+  padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;
+  font-size:13px;background:#fafafa;cursor:pointer;outline:none;font-family:inherit;transition:border-color .2s
+}
+.fsel:focus{border-color:var(--red)}
+.fta{
+  width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;
+  font-size:13px;resize:vertical;min-height:110px;outline:none;font-family:inherit;
+  background:#fafafa;color:var(--text);transition:border-color .2s
+}
+.fta:focus{border-color:var(--red)}
+.upzone{
+  border:2px dashed var(--border);border-radius:10px;padding:22px;text-align:center;
+  background:#fafafa;transition:all .2s;cursor:pointer
+}
+.upzone:hover,.upzone.drag{border-color:var(--red);background:var(--red-light)}
+.upzone p{font-size:12px;color:var(--text2);margin-bottom:10px}
+.upzone-btns{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
+.file-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.prev-img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid var(--border)}
+.prev-file{padding:6px 12px;background:#f5f5f5;border-radius:7px;font-size:11px;border:1px solid var(--border);color:var(--text2)}
+.form-footer{text-align:center;padding-top:8px;border-top:1px solid var(--border2)}
 
-/* TOAST */
-#toast{position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;z-index:9999;transition:all 0.3s;opacity:0;transform:translateY(8px);pointer-events:none}
+.success-box{text-align:center;padding:36px 20px}
+.suc-ico{width:64px;height:64px;background:#43a047;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px;color:#fff}
+.suc-title{font-size:20px;font-weight:800;color:#1b5e20;margin-bottom:8px}
+.suc-sub{font-size:13px;color:#388e3c;margin-bottom:22px}
+.suc-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* ===== CHAMADOS TABLE ===== */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.fsel-sm{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--white);cursor:pointer;font-family:inherit;font-weight:500}
+.tbl-wrap{background:var(--white);border-radius:12px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{
+  background:#f8f8f8;padding:11px 14px;text-align:left;
+  font-weight:700;font-size:11px;color:var(--text2);
+  border-bottom:1px solid var(--border);white-space:nowrap;
+  text-transform:uppercase;letter-spacing:.4px
+}
+tbody td{padding:13px 14px;border-bottom:1px solid var(--border2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.cr:hover td{background:#fafafa;cursor:pointer}
+.tlink{color:var(--text);font-weight:700;cursor:pointer}
+.tlink:hover{color:var(--red);text-decoration:underline}
+.tbl-empty{padding:56px;text-align:center;color:var(--text2);font-size:13px}
+
+/* ===== TICKET DETAIL ===== */
+.det-layout{display:flex;height:100%;overflow:hidden}
+.det-main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.det-hd{
+  padding:14px 20px;background:var(--white);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-shrink:0
+}
+.det-title{font-size:14px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.det-body{flex:1;display:flex;overflow:hidden;min-height:0}
+.det-tabs{
+  width:155px;min-width:155px;border-right:1px solid var(--border);
+  background:#fafafa;padding:10px 8px;flex-shrink:0
+}
+.dt-it{
+  padding:9px 10px;border-radius:7px;font-size:12px;cursor:pointer;
+  color:var(--text2);display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:3px;transition:background .1s;font-weight:500
+}
+.dt-it:hover{background:#f0f0f0}
+.dt-it.act{background:var(--white);color:var(--text);font-weight:700;box-shadow:var(--shadow)}
+.dt-cnt{background:var(--red);color:#fff;font-size:10px;padding:2px 7px;border-radius:100px}
+.msgs-wrap{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.msg{border-radius:10px;padding:14px 16px}
+.msg-form{background:var(--green-bg);border:1px solid var(--green-bd)}
+.msg-auto{background:var(--yellow-bg);border:1px solid #fff176}
+.msg-user{background:var(--white);border:1px solid var(--border);box-shadow:var(--shadow)}
+.msg-meta{font-size:11px;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.msg-txt{font-size:13px;line-height:1.65;color:var(--text)}
+.msg-imgs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.msg-imgs img{height:100px;max-width:160px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--border);transition:opacity .15s}
+.msg-imgs img:hover{opacity:.85}
+.reply-bar{
+  padding:12px 20px;background:var(--white);border-top:1px solid var(--border);
+  display:flex;gap:8px;align-items:center;flex-shrink:0
+}
+.reply-inp{
+  flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;
+  font-size:13px;outline:none;font-family:inherit;transition:border-color .2s
+}
+.reply-inp:focus{border-color:var(--red)}
+.det-side{
+  width:265px;min-width:265px;border-left:1px solid var(--border);
+  overflow-y:auto;background:var(--white);flex-shrink:0
+}
+.ds-sec{padding:16px;border-bottom:1px solid var(--border2)}
+.ds-title{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.ds-row{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border2);gap:8px}
+.ds-row:last-child{border:none}
+.ds-lbl{font-size:11px;color:var(--text2);flex-shrink:0}
+.ds-val{font-size:11px;font-weight:600;text-align:right;word-break:break-word;color:var(--text)}
+.actor-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.actor-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0}
+
+/* ===== STATS TAB ===== */
+.stats-body{padding:20px;overflow-y:auto}
+.tl{display:flex;flex-direction:column;gap:0;position:relative;padding-left:40px;margin-bottom:24px}
+.tl::before{content:'';position:absolute;left:13px;top:14px;bottom:14px;width:1px;background:var(--border)}
+.tl-it{display:flex;align-items:flex-start;gap:12px;padding:6px 0;position:relative}
+.tl-dot{
+  width:26px;height:26px;border-radius:50%;border:2px solid var(--border);
+  background:var(--white);display:flex;align-items:center;justify-content:center;
+  font-size:11px;flex-shrink:0;position:absolute;left:-40px
+}
+.tl-dot.done{background:#43a047;border-color:#43a047;color:#fff}
+.tl-dot.now{background:var(--blue);border-color:var(--blue);color:#fff}
+.tl-lbl{font-size:13px;font-weight:600}
+.tl-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.stats-nums{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.snum{background:#f8f8f8;border-radius:8px;padding:12px;border:1px solid var(--border)}
+.snum-v{font-size:20px;font-weight:800}
+.snum-l{font-size:11px;color:var(--text2);margin-top:3px}
+
+/* ===== ADMIN ===== */
+.adm-card{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px}
+.adm-hd{padding:14px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
+.adm-title{font-size:14px;font-weight:700}
+.adm-body{padding:0 20px}
+.usr-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border2)}
+.usr-row:last-child{border:none}
+.usr-info{flex:1;min-width:0}
+.usr-name{font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.usr-email{font-size:11px;color:var(--text2)}
+
+/* ===== MODAL ===== */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--white);border-radius:16px;padding:28px;width:100%;max-width:460px;box-shadow:0 24px 64px rgba(0,0,0,.15)}
+.modal-title{font-size:17px;font-weight:800;margin-bottom:22px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:16px;border-top:1px solid var(--border2)}
+
+/* ===== TOAST ===== */
+#toast{
+  position:fixed;bottom:24px;right:24px;
+  background:#1a1a1a;color:#fff;padding:12px 18px;
+  border-radius:10px;font-size:13px;font-weight:600;
+  z-index:9999;transition:all .3s;opacity:0;transform:translateY(8px);
+  pointer-events:none;max-width:340px
+}
 #toast.show{opacity:1;transform:translateY(0)}
-#toast.error{background:#c62828}
-#toast.success{background:#2e7d32}
+#toast.err{background:#c62828}
+#toast.ok{background:#2e7d32}
 
-/* LOADING */
-.loading{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--text2);font-size:14px;gap:10px}
-.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 0.8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* ===== LOADING ===== */
+.loading{display:flex;align-items:center;justify-content:center;padding:64px;color:var(--text2);font-size:13px;gap:10px}
+.spin{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:sp .8s linear infinite;flex-shrink:0}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-/* RESPONSIVE */
-@media(max-width:768px){
-  .forms-layout{grid-template-columns:1fr}
-  .forms-sidebar,.forms-recent-col{display:none}
-  .quick-grid{grid-template-columns:1fr}
+/* ===== LIGHTBOX ===== */
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:2000;cursor:pointer;padding:20px}
+.lb.open{display:flex}
+.lb img{max-width:90%;max-height:90%;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lb-close{position:absolute;top:20px;right:24px;color:#fff;font-size:28px;cursor:pointer;font-weight:300}
+
+@media(max-width:900px){
+  .home-grid{grid-template-columns:1fr}
   .stats-grid{grid-template-columns:1fr 1fr}
-  .detail-sidebar{display:none}
-  .detail-tabs-col{display:none}
-  .topbar-info{display:none}
+  .det-side{display:none}
+}
+@media(max-width:640px){
+  .det-tabs{display:none}
+  .stats-grid{grid-template-columns:1fr}
+}
+@media print{
+  .sidebar,.topbar,.reply-bar,.det-tabs,.det-side,.modal-bg,#toast,.lb,
+  .filter-bar .btn-primary,.det-hd button{display:none!important}
+  .det-layout{display:block}
+  .det-main,.msgs-wrap{height:auto;overflow:visible}
+  body,.page{background:#fff;padding:0}
+  .card,.tbl-wrap,.form-card{box-shadow:none}
 }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- ===== LOGIN ===== -->
 <div id="login-screen">
   <div class="login-logo">
     <h1><span>WFF</span>OOD</h1>
     <p>Sistema de Chamados — Manutenção</p>
   </div>
   <div class="login-card">
-    <div class="login-error" id="login-error"></div>
-    <label>Usuário (e-mail)</label>
-    <input type="email" id="login-email" placeholder="seu@email.com" />
-    <label>Senha <a class="forgot" onclick="showForgot()">Esqueceu sua senha?</a></label>
-    <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
-      <input type="checkbox" id="remember" checked style="width:auto;margin:0" />
-      <label for="remember" style="color:rgba(255,255,255,0.8);font-size:12px;cursor:pointer">Lembrar de mim</label>
-    </div>
-    <button class="login-btn" onclick="doLogin()" id="login-btn">Entrar</button>
+    <div class="login-err" id="lerr"></div>
+    <div class="lbl">Usuário (e-mail)</div>
+    <input type="email" id="lemail" class="inp" placeholder="seu@email.com.br" autocomplete="email" />
+    <div class="lbl">Senha <a onclick="doForgot()">Esqueceu sua senha?</a></div>
+    <input type="password" id="lpass" class="inp" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="current-password" />
+    <div class="chk-row"><input type="checkbox" id="lrem" checked /><span>Lembrar de mim</span></div>
+    <button class="login-btn" id="lbtn" onclick="doLogin()">Entrar</button>
   </div>
 </div>
 
-<!-- APP -->
+<!-- ===== APP ===== -->
 <div id="app">
   <div class="layout">
-    <div class="sidebar" id="sidebar">
-      <div class="brand">
-        <div class="brand-inner">
-          <div class="brand-icon">W</div>
-          <div class="brand-text">
-            <div class="brand-name">WFFOOD</div>
-            <div class="brand-sub">Suporte Interno</div>
+    <div class="sidebar" id="sb">
+      <div class="sb-brand">
+        <div class="sb-brand-inner">
+          <div class="sb-logo">W</div>
+          <div class="sb-txt">
+            <div class="sb-name">WFFOOD</div>
+            <div class="sb-sub">Suporte Interno</div>
           </div>
         </div>
       </div>
-      <nav id="nav">
-        <div class="nav-item active" onclick="navigate('home')" id="nav-home">
-          <span class="icon">🏠</span><span class="nav-label">Home</span>
-        </div>
-        <div class="nav-item" onclick="navigate('formularios')" id="nav-formularios">
-          <span class="icon">📋</span><span class="nav-label">Formulários</span>
-        </div>
-        <div class="nav-item" onclick="navigate('chamados')" id="nav-chamados">
-          <span class="icon">🎫</span><span class="nav-label">Chamados</span>
-        </div>
-        <div class="nav-item" onclick="navigate('admin')" id="nav-admin" style="display:none">
-          <span class="icon">⚙️</span><span class="nav-label">Usuários</span>
-        </div>
-      </nav>
-      <div class="sidebar-foot">
-        <div class="sidebar-foot-btn" onclick="toggleSidebar()">
-          <span>◀</span><span class="nav-label"> Recolher</span>
-        </div>
+      <div class="sb-nav">
+        <div class="nav-it on" onclick="goPage('home')" id="ni-home"><span class="nav-ico">🏠</span><span class="nav-lbl">Home</span></div>
+        <div class="nav-it" onclick="goPage('forms')" id="ni-forms"><span class="nav-ico">📋</span><span class="nav-lbl">Formulários</span></div>
+        <div class="nav-it" onclick="goPage('chamados')" id="ni-chamados"><span class="nav-ico">🎫</span><span class="nav-lbl">Chamados</span></div>
+        <div class="nav-it" onclick="goPage('admin')" id="ni-admin" style="display:none"><span class="nav-ico">👥</span><span class="nav-lbl">Usuários</span></div>
+      </div>
+      <div class="sb-foot">
+        <div class="sb-foot-btn" onclick="toggleSB()"><span id="sfico">◀</span><span class="nav-lbl" id="sflbl"> Recolher</span></div>
       </div>
     </div>
-
-    <div class="content">
+    <div class="main">
       <div class="topbar">
-        <div class="breadcrumb" id="breadcrumb">
-          <span>🏠</span> <a onclick="navigate('home')">Home</a>
-        </div>
-        <div class="topbar-right">
-          <div class="topbar-info">
-            <div class="client-lbl">Cliente</div>
-            <div class="client-name" id="topbar-name">WFFOOD</div>
+        <div class="bc" id="bc">🏠 <a onclick="goPage('home')">Home</a></div>
+        <div class="topbar-r">
+          <div class="tb-client">
+            <div class="lbl-c">Cliente</div>
+            <div class="name-c" id="tbclient">WFFOOD</div>
           </div>
-          <div class="avatar-btn" onclick="toggleDD()" id="avatar-btn">LT
-            <div class="dropdown" id="user-dd" onclick="event.stopPropagation()">
-              <div class="dd-head">
-                <div class="dd-username" id="dd-name">—</div>
-                <div class="dd-email" id="dd-email">—</div>
+          <div class="uav" id="uavbtn" onclick="toggleDD()">LT
+            <div class="dropdown" id="udd" onclick="event.stopPropagation()">
+              <div class="dd-hd">
+                <div class="dd-nm" id="ddnm">—</div>
+                <div class="dd-em" id="ddem">—</div>
               </div>
-              <div class="dd-item" onclick="navigate('admin');closeDD()"><span class="icon">⚙️</span> Minhas configurações</div>
-              <div class="dd-separator"></div>
-              <div class="dd-item danger" onclick="doLogout()"><span class="icon">🚪</span> Sair</div>
+              <div class="dd-it" onclick="goPage('admin');closeDD()">⚙️ Configurações</div>
+              <div class="dd-sep"></div>
+              <div class="dd-it dd-danger" onclick="doLogout()">🚪 Sair</div>
             </div>
           </div>
         </div>
       </div>
-      <div class="page-content" id="page-content">
-        <div class="loading"><div class="spinner"></div> Carregando...</div>
-      </div>
+      <div class="page" id="pg"><div class="loading"><div class="spin"></div> Carregando...</div></div>
     </div>
   </div>
 </div>
 
-<!-- MODAL NOVO USUÁRIO -->
-<div class="modal-overlay" id="modal-user">
+<!-- MODAL USUÁRIO -->
+<div class="modal-bg" id="muser">
   <div class="modal">
-    <div class="modal-title">Adicionar usuário</div>
-    <div class="form-group">
-      <label class="form-label">Nome completo <span class="req">*</span></label>
-      <input type="text" class="form-input" id="new-nome" placeholder="Ex: João da Silva" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">E-mail <span class="req">*</span></label>
-      <input type="email" class="form-input" id="new-email" placeholder="joao@exemplo.com" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">Senha provisória <span class="req">*</span></label>
-      <input type="text" class="form-input" id="new-senha" placeholder="Mínimo 6 caracteres" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">Papel <span class="req">*</span></label>
-      <select class="form-select" id="new-papel" style="width:100%">
+    <div class="modal-title">👤 Adicionar usuário</div>
+    <div class="fg"><label class="fl">Nome completo <span class="req">*</span></label><input type="text" class="finp" id="unome" placeholder="Ex: João da Silva" /></div>
+    <div class="fg"><label class="fl">E-mail <span class="req">*</span></label><input type="email" class="finp" id="uemail" placeholder="joao@email.com" /></div>
+    <div class="fg"><label class="fl">Senha provisória <span class="req">*</span></label><input type="text" class="finp" id="usenha" placeholder="Mínimo 6 caracteres" /></div>
+    <div class="fg">
+      <label class="fl">Papel <span class="req">*</span></label>
+      <select class="fsel" id="upapel" style="width:100%" onchange="toggleLojaFg()">
         <option value="gerente">Gerente de Loja</option>
-        <option value="tecnico">Técnico</option>
-        <option value="gestor">Gestor</option>
+        <option value="tecnico">Técnico de Manutenção</option>
+        <option value="gestor">Gestor (acesso total)</option>
       </select>
     </div>
-    <div class="form-group" id="new-loja-group">
-      <label class="form-label">Loja <span class="req">*</span></label>
-      <select class="form-select" id="new-loja" style="width:100%">
-        <option value="">Selecione a loja...</option>
-      </select>
+    <div class="fg" id="ulojafg">
+      <label class="fl">Loja <span class="req">*</span></label>
+      <select class="fsel" id="uloja" style="width:100%"><option value="">Selecione a loja...</option></select>
     </div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-user')">Cancelar</button>
-      <button class="btn btn-primary" onclick="criarUsuario()">Criar usuário</button>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="criarUser()">✅ Criar usuário</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
+<!-- LIGHTBOX -->
+<div class="lb" id="lb" onclick="this.classList.remove('open')">
+  <div class="lb-close">✕</div>
+  <img id="lbimg" src="" alt="foto" />
+</div>
+
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
 <script>
-const SUPA_URL = 'https://xqacclecfdbsgrvvzwts.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhxYWNjbGVjZmRic2dydnZ6d3RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwOTY3MzgsImV4cCI6MjA5MzY3MjczOH0.tjLI0sFjHvkrIaET2h8D-REN6wj1Ta2JQCUOe1IgNaE';
-const { createClient } = window.supabase;
-const supabase = createClient(SUPA_URL, SUPA_KEY);
+const SB_URL='https://xqacclecfdbsgrvvzwts.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhxYWNjbGVjZmRic2dydnZ6d3RzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwOTY3MzgsImV4cCI6MjA5MzY3MjczOH0.tjLI0sFjHvkrIaET2h8D-REN6wj1Ta2JQCUOe1IgNaE';
+const {createClient}=window.supabase;
+const sb=createClient(SB_URL,SB_KEY);
 
-let currentUser = null;
-let currentProfile = null;
-let allLojas = [];
-let sidebarCollapsed = false;
+let ME=null,PROF=null,LOJAS=[],SBCOL=false;
 
-// ===================== AUTH =====================
-async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-pass').value;
-  const btn = document.getElementById('login-btn');
-  const errEl = document.getElementById('login-error');
-  if (!email || !pass) { showErr('Preencha e-mail e senha.'); return; }
-  btn.textContent = 'Entrando...';
-  btn.disabled = true;
-  errEl.style.display = 'none';
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
-  btn.textContent = 'Entrar';
-  btn.disabled = false;
-  if (error) { showErr(error.message === 'Invalid login credentials' ? 'E-mail ou senha incorretos.' : error.message); return; }
-  await initApp(data.user);
+/* ── AUTH ── */
+async function doLogin(){
+  const email=document.getElementById('lemail').value.trim();
+  const pass=document.getElementById('lpass').value;
+  const btn=document.getElementById('lbtn');
+  const err=document.getElementById('lerr');
+  err.style.display='none';
+  if(!email||!pass){setErr('Preencha e-mail e senha.');return;}
+  btn.textContent='Entrando...';btn.disabled=true;
+  const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  btn.textContent='Entrar';btn.disabled=false;
+  if(error){setErr(error.message.includes('Invalid')?'E-mail ou senha incorretos.':error.message);return;}
+  await boot(data.user);
 }
-
-function showErr(msg) {
-  const e = document.getElementById('login-error');
-  e.textContent = msg;
-  e.style.display = 'block';
+function setErr(m){const e=document.getElementById('lerr');e.textContent=m;e.style.display='block';}
+async function doForgot(){
+  const em=document.getElementById('lemail').value.trim();
+  if(!em){alert('Digite seu e-mail primeiro.');return;}
+  await sb.auth.resetPasswordForEmail(em,{redirectTo:'https://wffood-chamados.vercel.app'});
+  alert('Link de recuperação enviado para '+em);
 }
-
-async function initApp(user) {
-  currentUser = user;
-  const { data: profile } = await supabase.from('perfis').select('*').eq('id', user.id).single();
-  currentProfile = profile;
-  const { data: lojas } = await supabase.from('lojas').select('*').order('codigo');
-  allLojas = lojas || [];
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  const initials = (profile?.nome || user.email).split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
-  document.getElementById('avatar-btn').childNodes[0].textContent = initials;
-  document.getElementById('dd-name').textContent = profile?.nome || user.email;
-  document.getElementById('dd-email').textContent = user.email;
-  document.getElementById('topbar-name').textContent = profile?.papel === 'gestor' ? 'Gestor — Todas as lojas' : (allLojas.find(l => l.id === profile?.loja_id)?.nome || 'WFFOOD');
-  if (profile?.papel === 'gestor') document.getElementById('nav-admin').style.display = 'flex';
-  navigate('home');
+async function boot(user){
+  ME=user;
+  // Tenta carregar perfil (com retry se RLS ainda estiver carregando)
+  let p=null;
+  for(let i=0;i<3;i++){
+    const{data:pd,error:pe}=await sb.from('perfis').select('*').eq('id',user.id).single();
+    if(pd){p=pd;break;}
+    if(pe&&pe.code!=='PGRST116')break;
+    await new Promise(r=>setTimeout(r,500));
+  }
+  PROF=p||null;
+  const{data:l}=await sb.from('lojas').select('*').order('codigo');
+  LOJAS=l||[];
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  const nome=p?.nome||user.email||'Usuário';
+  const ini=nome.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+  document.getElementById('uavbtn').childNodes[0].textContent=ini;
+  document.getElementById('ddnm').textContent=p?.nome||user.email;
+  document.getElementById('ddem').textContent=user.email;
+  document.getElementById('tbclient').textContent=p?.papel==='gestor'?'Gestor — Todas as lojas':(LOJAS.find(x=>x.id===p?.loja_id)?.nome||'WFFOOD');
+  if(p?.papel==='gestor')document.getElementById('ni-admin').style.display='flex';
+  goPage('home');
 }
-
-async function doLogout() {
-  await supabase.auth.signOut();
-  currentUser = null;
-  currentProfile = null;
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('login-pass').value = '';
-  document.getElementById('login-email').value = '';
-  document.getElementById('nav-admin').style.display = 'none';
+async function doLogout(){
+  await sb.auth.signOut();ME=null;PROF=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('lpass').value='';
+  document.getElementById('ni-admin').style.display='none';
   closeDD();
 }
 
-function showForgot() {
-  const email = document.getElementById('login-email').value.trim();
-  if (!email) { alert('Digite seu e-mail primeiro.'); return; }
-  supabase.auth.resetPasswordForEmail(email).then(() => {
-    alert('Link de recuperação enviado para ' + email);
-  });
-}
-
-// ===================== NAVIGATION =====================
-function navigate(page, params = {}) {
+/* ── NAVIGATION ── */
+function goPage(page,params={}){
   closeDD();
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const navMap = { home: 'nav-home', formularios: 'nav-formularios', chamados: 'nav-chamados', 'novo-chamado': 'nav-formularios', 'ticket-detail': 'nav-chamados', admin: 'nav-admin' };
-  const navEl = document.getElementById(navMap[page]);
-  if (navEl) navEl.classList.add('active');
-  const pc = document.getElementById('page-content');
-  const bc = document.getElementById('breadcrumb');
-  if (page === 'home') {
-    bc.innerHTML = `🏠 <a onclick="navigate('home')">Home</a>`;
-    renderHome(pc);
-  } else if (page === 'formularios') {
-    bc.innerHTML = `🏠 <a onclick="navigate('home')">Home</a> <span class="sep">›</span> Formulários`;
-    renderFormularios(pc);
-  } else if (page === 'novo-chamado') {
-    bc.innerHTML = `🏠 <a onclick="navigate('home')">Home</a> <span class="sep">›</span> <a onclick="navigate('formularios')">Formulários</a> <span class="sep">›</span> ${params.cat || 'Novo Chamado'}`;
-    renderNovoChamado(pc, params.cat);
-  } else if (page === 'chamados') {
-    bc.innerHTML = `🏠 <a onclick="navigate('home')">Home</a> <span class="sep">›</span> Chamados`;
-    renderChamados(pc);
-  } else if (page === 'ticket-detail') {
-    bc.innerHTML = `🏠 <a onclick="navigate('home')">Home</a> <span class="sep">›</span> <a onclick="navigate('chamados')">Chamados</a> <span class="sep">›</span> #${params.id}`;
-    renderDetail(pc, params.id);
-  } else if (page === 'admin') {
-    bc.innerHTML = `🏠 <a onclick="navigate('home')">Home</a> <span class="sep">›</span> Gerenciar Usuários`;
-    renderAdmin(pc);
+  document.querySelectorAll('.nav-it').forEach(n=>n.classList.remove('on'));
+  const nm={home:'ni-home',forms:'ni-forms',chamados:'ni-chamados','novo':'ni-forms','detail':'ni-chamados',admin:'ni-admin'};
+  const el=document.getElementById(nm[page]);if(el)el.classList.add('on');
+  const pg=document.getElementById('pg'),bc=document.getElementById('bc');
+  pg.style.cssText='padding:24px;overflow-y:auto;flex:1';
+  if(page==='home'){
+    bc.innerHTML=`🏠 <a onclick="goPage('home')">Home</a>`;
+    renderHome(pg);
+  } else if(page==='forms'){
+    bc.innerHTML=`🏠 <a onclick="goPage('home')">Home</a> <span class="bc-sep">›</span> Formulários`;
+    renderForms(pg);
+  } else if(page==='novo'){
+    bc.innerHTML=`🏠 <a onclick="goPage('home')">Home</a> <span class="bc-sep">›</span> <a onclick="goPage('forms')">Formulários</a> <span class="bc-sep">›</span> ${catLbl(params.cat)}`;
+    renderFormChamado(pg,params.cat);
+  } else if(page==='chamados'){
+    bc.innerHTML=`🏠 <a onclick="goPage('home')">Home</a> <span class="bc-sep">›</span> Chamados`;
+    renderChamados(pg);
+  } else if(page==='detail'){
+    bc.innerHTML=`🏠 <a onclick="goPage('home')">Home</a> <span class="bc-sep">›</span> <a onclick="goPage('chamados')">Chamados</a> <span class="bc-sep">›</span> #${params.id}`;
+    renderDetail(pg,params.id);
+  } else if(page==='admin'){
+    bc.innerHTML=`🏠 <a onclick="goPage('home')">Home</a> <span class="bc-sep">›</span> Usuários`;
+    renderAdmin(pg);
   }
 }
 
-// ===================== HELPERS =====================
-function sbadge(s) {
-  if (s === 'aguardando') return `<span class="badge badge-aguardando"><span class="dot dot-green"></span> Aguardando</span>`;
-  if (s === 'em_atendimento') return `<span class="badge badge-atendimento"><span class="dot dot-blue"></span> Em atendimento</span>`;
-  return `<span class="badge badge-fechado"><span class="dot dot-gray"></span> Fechado</span>`;
+/* ── HELPERS ── */
+function catLbl(c){
+  return c==='estrutural'?'Manutenção Estrutural':c==='equipamentos'?'Manutenção Equipamentos':'Manutenção TI (Informática)';
 }
-function pbadge(p) {
-  if (p === 'alta') return `<span class="badge badge-alta">Alta</span>`;
-  if (p === 'media') return `<span class="badge badge-media">Média</span>`;
-  return `<span class="badge badge-baixa">Baixa</span>`;
+function lojaStr(id){
+  const l=LOJAS.find(x=>x.id===id);
+  return l?`${l.codigo} — ${l.nome}`:'—';
 }
-function catLabel(c) {
-  return c === 'estrutural' ? '🏗 Manutenção Estrutural' : c === 'equipamentos' ? '🔧 Manutenção Equipamentos' : '💻 Manutenção TI';
+function fdt(d){
+  if(!d)return'—';
+  const dt=new Date(d);
+  return dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 }
-function lojaName(id) {
-  const l = allLojas.find(x => x.id === id);
-  return l ? `${l.codigo} — ${l.nome}` : '—';
+function sbadge(s){
+  if(s==='aguardando')return`<span class="badge bw"><span class="dot dg"></span> Aguardando atendimento</span>`;
+  if(s==='em_atendimento')return`<span class="badge ba"><span class="dot db"></span> Em atendimento</span>`;
+  return`<span class="badge bf"><span class="dot dgr"></span> Fechado</span>`;
 }
-function fmtDate(d) {
-  if (!d) return '—';
-  const dt = new Date(d);
-  return dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+function pbadge(p){
+  if(p==='alta')return`<span class="badge bh">Alta</span>`;
+  if(p==='media')return`<span class="badge bm">Média</span>`;
+  return`<span class="badge bl">Baixa</span>`;
 }
-function toast(msg, type = '') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'show ' + type;
-  setTimeout(() => t.className = '', 3000);
+function toast(m,t=''){
+  const el=document.getElementById('toast');
+  el.textContent=m;el.className='show'+(t?' '+t:'');
+  setTimeout(()=>el.className='',3500);
 }
+function toggleDD(){document.getElementById('udd').classList.toggle('open');}
+function closeDD(){document.getElementById('udd').classList.remove('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.uav'))closeDD();});
+function toggleSB(){
+  SBCOL=!SBCOL;
+  document.getElementById('sb').classList.toggle('col',SBCOL);
+  document.querySelectorAll('.nav-lbl,.sb-txt').forEach(e=>e.style.display=SBCOL?'none':'');
+  document.getElementById('sfico').textContent=SBCOL?'▶':'◀';
+  document.getElementById('sflbl').textContent=SBCOL?'':' Recolher';
+}
+function openLB(u){document.getElementById('lbimg').src=u;document.getElementById('lb').classList.add('open');}
 
-// ===================== HOME =====================
-async function renderHome(pc) {
-  pc.innerHTML = `<div class="loading"><div class="spinner"></div> Carregando...</div>`;
-  let query = supabase.from('chamados').select('*', { count: 'exact' });
-  if (currentProfile?.papel === 'gerente') query = query.eq('loja_id', currentProfile.loja_id);
-  const { data: todos } = await query;
-  const abertos = (todos || []).filter(t => t.status !== 'fechado').length;
-  const aguardando = (todos || []).filter(t => t.status === 'aguardando').length;
-  const fechados = (todos || []).filter(t => t.status === 'fechado').length;
-  let recentes = (todos || []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 4);
-  pc.innerHTML = `
-    <div class="home-title">Bem-vindo, ${currentProfile?.nome?.split(' ')[0] || 'Lucas'} 👋</div>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-num">${abertos}</div><div class="stat-lbl">🎫 Chamados em aberto</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:var(--red)">${aguardando}</div><div class="stat-lbl">⏳ Aguardando atendimento</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:var(--green)">${fechados}</div><div class="stat-lbl">✅ Fechados</div></div>
-    </div>
-    <div class="quick-grid">
-      <div class="quick-card">
-        <div class="quick-card-title">📋 Últimos chamados</div>
-        ${recentes.length === 0 ? '<p style="font-size:12px;color:var(--text2)">Nenhum chamado ainda.</p>' : recentes.map(t => `
-          <div class="recent-item">
-            <div>
-              <div class="recent-link" onclick="navigate('ticket-detail',{id:${t.id}})">#${t.id} — ${t.titulo.substring(0,45)}${t.titulo.length>45?'...':''}</div>
-              <div class="recent-date">${fmtDate(t.created_at)}</div>
-            </div>
-            ${sbadge(t.status)}
-          </div>`).join('')}
-        <div style="margin-top:10px"><button class="btn btn-sm" onclick="navigate('chamados')">Ver todos →</button></div>
-      </div>
-      <div class="quick-card">
-        <div class="quick-card-title">➕ Abrir novo chamado</div>
-        <button class="quick-btn" onclick="navigate('novo-chamado',{cat:'estrutural'})"><span class="quick-dot" style="background:var(--blue)"></span> Manutenção Estrutural</button>
-        <button class="quick-btn" onclick="navigate('novo-chamado',{cat:'equipamentos'})"><span class="quick-dot" style="background:var(--green)"></span> Manutenção Equipamentos</button>
-        <button class="quick-btn" onclick="navigate('novo-chamado',{cat:'ti'})"><span class="quick-dot" style="background:var(--purple)"></span> Manutenção TI (Informática)</button>
-      </div>
-    </div>`;
-}
-
-// ===================== FORMULÁRIOS =====================
-function renderFormularios(pc) {
-  const cats = [
-    { key: 'estrutural', icon: '🏗', cls: 'est', name: 'Manutenção Estrutural', desc: 'Teto, piso, paredes, elétrica, hidráulica, pintura' },
-    { key: 'equipamentos', icon: '🔧', cls: 'eqp', name: 'Manutenção Equipamentos', desc: 'Fritadeiras, chapas, freezers, estufas, GLP' },
-    { key: 'ti', icon: '💻', cls: 'ti', name: 'Manutenção TI (Informática)', desc: 'PDV, redes, impressoras, KDS, tablets, sistemas' },
-  ];
-  pc.innerHTML = `
-    <div class="section-title">Formulários</div>
-    <div class="forms-layout">
-      <div class="forms-sidebar">
-        <div class="forms-sidebar-title">Categorias</div>
-        ${cats.map(c => `<div class="forms-sidebar-item" onclick="navigate('novo-chamado',{cat:'${c.key}'})">${c.name}</div>`).join('')}
-      </div>
-      <div>
-        <div class="cat-cards">
-          ${cats.map(c => `
-            <div class="cat-card" onclick="navigate('novo-chamado',{cat:'${c.key}'})">
-              <div class="cat-icon ${c.cls}">${c.icon}</div>
-              <div class="cat-info">
-                <div class="cat-name">${c.name}</div>
-                <div class="cat-desc">${c.desc}</div>
-              </div>
-              <span style="color:var(--text2);font-size:18px">›</span>
-            </div>`).join('')}
-        </div>
-      </div>
-      <div class="forms-recent-col">
-        <div class="forms-recent-title">Últimos chamados</div>
-        <div id="forms-recent-list"><div class="spinner" style="margin:10px auto;display:block"></div></div>
-      </div>
-    </div>`;
-  loadFormsRecent();
-}
-async function loadFormsRecent() {
-  let q = supabase.from('chamados').select('id,titulo,created_at').order('created_at', { ascending: false }).limit(5);
-  if (currentProfile?.papel === 'gerente') q = q.eq('loja_id', currentProfile.loja_id);
-  const { data } = await q;
-  const el = document.getElementById('forms-recent-list');
-  if (!el) return;
-  if (!data || data.length === 0) { el.innerHTML = '<p style="font-size:11px;color:var(--text2)">Nenhum chamado ainda.</p>'; return; }
-  el.innerHTML = data.map(t => `<div class="forms-recent-item"><div class="forms-recent-link" onclick="navigate('ticket-detail',{id:${t.id}})">#${t.id} — ${t.titulo.substring(0,30)}...</div><div style="font-size:10px;color:var(--text2)">${fmtDate(t.created_at)}</div></div>`).join('');
-}
-
-// ===================== NOVO CHAMADO =====================
-function renderNovoChamado(pc, cat) {
-  const labels = { estrutural: '🏗 Manutenção Estrutural', equipamentos: '🔧 Manutenção Equipamentos', ti: '💻 Manutenção TI (Informática)' };
-  const lojaOptions = allLojas.map(l => `<option value="${l.id}">${l.codigo} — ${l.nome}</option>`).join('');
-  const lojaDefault = currentProfile?.papel === 'gerente' && currentProfile?.loja_id
-    ? `<select class="form-select" id="f-loja" disabled style="width:100%"><option value="${currentProfile.loja_id}">${lojaName(currentProfile.loja_id)}</option></select>`
-    : `<select class="form-select" id="f-loja" style="width:100%"><option value="">Selecione a loja...</option>${lojaOptions}</select>`;
-  pc.innerHTML = `
-    <div class="form-title">${labels[cat] || 'Novo Chamado'}</div>
-    <div class="form-card">
-      <div class="form-tab-bar"><span class="form-tab">Chamado</span></div>
-      <div class="form-body" id="form-body">
-        <div class="form-group">
-          <label class="form-label">Selecione a loja <span class="req">*</span></label>
-          ${lojaDefault}
-        </div>
-        <div class="form-group">
-          <label class="form-label">Descrição do chamado <span class="req">*</span></label>
-          <div class="editor-wrap">
-            <div class="editor-toolbar">
-              <button class="editor-btn" onclick="fmtText('bold')"><b>B</b></button>
-              <button class="editor-btn" onclick="fmtText('italic')"><i>I</i></button>
-              <span style="color:var(--border)">|</span>
-              <span style="font-size:11px;color:var(--text2)">Descreva o problema detalhadamente</span>
-            </div>
-            <textarea class="form-textarea" id="f-desc" style="border:none;border-radius:0;border-top:1px solid var(--border)" placeholder="Ex: Fritadeira 01 não está aquecendo corretamente. Temperatura não ultrapassa 120°C mesmo no máximo..."></textarea>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Número do chamado externo</label>
-          <input type="text" class="form-input" id="f-externo" placeholder="Opcional — número do chamado no sistema do fornecedor" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Prioridade</label>
-          <select class="form-select" id="f-prio">
-            <option value="baixa">Baixa — Não urgente</option>
-            <option value="media">Média — Impacta operação parcialmente</option>
-            <option value="alta">Alta — Operação comprometida</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Número de telefone <span class="req">*</span></label>
-          <p class="form-hint">Formato: DDD 9XXXX-XXXX</p>
-          <input type="tel" class="form-input" id="f-tel" placeholder="Ex: 85 99999-9999" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Anexo (foto/vídeo)</label>
-          <div class="upload-zone">
-            <p>📎 Arraste e solte arquivos aqui, ou</p>
-            <div class="upload-zone-btns">
-              <button class="btn btn-sm" onclick="document.getElementById('f-file').click()">Escolher arquivos</button>
-              <span id="file-names" style="font-size:11px;color:var(--text2)">Nenhum arquivo escolhido</span>
-            </div>
-            <input type="file" id="f-file" multiple accept="image/*,video/*,.pdf" style="display:none" onchange="showFileNames(this)" />
-            <p style="font-size:10px;color:var(--text2);margin-top:8px">Máx. 20MB — Imagens, vídeos ou PDF</p>
-          </div>
-        </div>
-        <div class="form-submit">
-          <button class="btn btn-primary" onclick="submitChamado('${cat}')">✉️ Enviar chamado</button>
-        </div>
-      </div>
-    </div>`;
-}
-
-function showFileNames(input) {
-  const names = Array.from(input.files).map(f => f.name).join(', ');
-  document.getElementById('file-names').textContent = names || 'Nenhum arquivo escolhido';
-}
-
-async function submitChamado(cat) {
-  const lojaEl = document.getElementById('f-loja');
-  const desc = document.getElementById('f-desc').value.trim();
-  const tel = document.getElementById('f-tel').value.trim();
-  const prio = document.getElementById('f-prio').value;
-  const loja_id = lojaEl.value;
-  if (!loja_id) { toast('Selecione a loja!', 'error'); return; }
-  if (!desc) { toast('Preencha a descrição!', 'error'); return; }
-  if (!tel) { toast('Informe o telefone!', 'error'); return; }
-  const lojaInfo = allLojas.find(l => l.id === loja_id);
-  const titulo = `${catLabel(cat).replace(/^.+ /, '')} — ${lojaInfo?.codigo || ''}`;
-  const { data, error } = await supabase.from('chamados').insert({
-    titulo, descricao: desc, categoria: cat, prioridade: prio,
-    loja_id, criado_por: currentUser.id
-  }).select().single();
-  if (error) { toast('Erro ao criar chamado: ' + error.message, 'error'); return; }
-  await supabase.from('mensagens').insert({
-    chamado_id: data.id,
-    autor_id: currentUser.id,
-    conteudo: `📋 *Dados do formulário*\n\n**Loja:** ${lojaInfo?.codigo} — ${lojaInfo?.nome}\n**Categoria:** ${catLabel(cat)}\n**Problema:** ${desc}\n**Prioridade:** ${prio}\n**Telefone:** ${tel}`
-  });
-  await supabase.from('mensagens').insert({
-    chamado_id: data.id,
-    autor_id: null,
-    conteudo: `✅ *Confirmação automática*\n\nOlá! Recebemos sua solicitação. Em breve um técnico iniciará o atendimento.\n\n📌 *Dica:* Inclua fotos ou vídeos para agilizar a análise.\n\n📞 Em caso de urgência, entre em contato pelo WhatsApp informando o número do chamado #${data.id}.`
-  });
-  const fb = document.getElementById('form-body');
-  fb.innerHTML = `
-    <div class="success-box">
-      <div class="success-icon">✅</div>
-      <div class="success-title">Chamado #${data.id} aberto com sucesso!</div>
-      <div class="success-sub">Em breve um técnico iniciará o atendimento. Você receberá atualizações por aqui.</div>
-      <div class="success-btns">
-        <button class="btn btn-primary" onclick="navigate('ticket-detail',{id:${data.id}})">Ver chamado</button>
-        <button class="btn" onclick="navigate('chamados')">Ver todos os chamados</button>
-      </div>
-    </div>`;
-}
-
-// ===================== CHAMADOS LIST =====================
-async function renderChamados(pc) {
-  pc.innerHTML = `<div class="loading"><div class="spinner"></div> Carregando chamados...</div>`;
-  let q = supabase.from('chamados').select('*').order('created_at', { ascending: false });
-  if (currentProfile?.papel === 'gerente') q = q.eq('loja_id', currentProfile.loja_id);
-  const { data: chamados } = await q;
-  pc.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-      <div class="filter-bar">
-        <select class="filter-select" id="filter-status" onchange="filterChamados()">
-          <option value="">Todos os status</option>
-          <option value="aguardando">Aguardando</option>
-          <option value="em_atendimento">Em atendimento</option>
-          <option value="fechado">Fechado</option>
-        </select>
-        <select class="filter-select" id="filter-cat" onchange="filterChamados()">
-          <option value="">Todas as categorias</option>
-          <option value="estrutural">Estrutural</option>
-          <option value="equipamentos">Equipamentos</option>
-          <option value="ti">TI</option>
-        </select>
-        <select class="filter-select" id="filter-prio" onchange="filterChamados()">
-          <option value="">Todas as prioridades</option>
-          <option value="alta">Alta</option>
-          <option value="media">Média</option>
-          <option value="baixa">Baixa</option>
-        </select>
-      </div>
-      <button class="btn btn-primary btn-sm" onclick="navigate('formularios')">➕ Novo chamado</button>
-    </div>
-    <div class="table-wrap" id="chamados-table"></div>
-    <div style="margin-top:8px;font-size:12px;color:var(--text2)" id="chamados-count"></div>`;
-  window._chamadosData = chamados || [];
-  filterChamados();
-}
-
-function filterChamados() {
-  const status = document.getElementById('filter-status')?.value;
-  const cat = document.getElementById('filter-cat')?.value;
-  const prio = document.getElementById('filter-prio')?.value;
-  let list = window._chamadosData || [];
-  if (status) list = list.filter(c => c.status === status);
-  if (cat) list = list.filter(c => c.categoria === cat);
-  if (prio) list = list.filter(c => c.prioridade === prio);
-  const el = document.getElementById('chamados-table');
-  const cnt = document.getElementById('chamados-count');
-  if (!el) return;
-  if (list.length === 0) {
-    el.innerHTML = `<div class="table-empty">Nenhum chamado encontrado.</div>`;
-    if (cnt) cnt.textContent = '';
-    return;
-  }
-  el.innerHTML = `<table>
-    <thead><tr>
-      <th>ID</th><th>Título</th><th>Loja</th><th>Categoria</th><th>Prioridade</th><th>Status</th><th>Data de Abertura</th>
-    </tr></thead>
-    <tbody>${list.map(c => `
-      <tr class="clickable" onclick="navigate('ticket-detail',{id:${c.id}})">
-        <td style="color:var(--text2);font-weight:600">#${c.id}</td>
-        <td><span class="tlink">${c.titulo}</span></td>
-        <td style="font-size:11px;color:var(--text2)">${lojaName(c.loja_id)}</td>
-        <td><span style="font-size:12px">${catLabel(c.categoria)}</span></td>
-        <td>${pbadge(c.prioridade)}</td>
-        <td>${sbadge(c.status)}</td>
-        <td style="font-size:11px;color:var(--text2)">${fmtDate(c.created_at)}</td>
-      </tr>`).join('')}
-    </tbody></table>`;
-  if (cnt) cnt.textContent = `Exibindo ${list.length} chamado${list.length !== 1 ? 's' : ''}`;
-}
-
-// ===================== TICKET DETAIL =====================
-async function renderDetail(pc, id) {
-  pc.innerHTML = `<div class="loading"><div class="spinner"></div> Carregando chamado...</div>`;
-  const { data: chamado } = await supabase.from('chamados').select('*').eq('id', id).single();
-  if (!chamado) { pc.innerHTML = '<p>Chamado não encontrado.</p>'; return; }
-  const { data: msgs } = await supabase.from('mensagens').select('*').eq('chamado_id', id).order('created_at');
-  const loja = allLojas.find(l => l.id === chamado.loja_id);
-  const statusColor = chamado.status === 'aguardando' ? '#43a047' : chamado.status === 'em_atendimento' ? '#1e88e5' : '#9e9e9e';
-  pc.style.padding = '0';
-  pc.style.overflow = 'hidden';
-  pc.style.display = 'flex';
-  pc.style.flexDirection = 'column';
-  pc.innerHTML = `
-    <div class="detail-layout" style="flex:1">
-      <div class="detail-main">
-        <div class="detail-header">
-          <div class="status-dot" style="background:${statusColor}"></div>
-          <span style="font-size:14px;font-weight:700">${chamado.titulo} (#${chamado.id})</span>
-          ${currentProfile?.papel !== 'gerente' ? `
-          <div style="margin-left:auto;display:flex;gap:8px">
-            <select class="filter-select" id="status-sel" onchange="updateStatus(${chamado.id},this.value)">
-              <option value="aguardando" ${chamado.status==='aguardando'?'selected':''}>Aguardando</option>
-              <option value="em_atendimento" ${chamado.status==='em_atendimento'?'selected':''}>Em atendimento</option>
-              <option value="fechado" ${chamado.status==='fechado'?'selected':''}>Fechado</option>
-            </select>
-          </div>` : ''}
-        </div>
-        <div class="detail-body">
-          <div class="detail-tabs-col">
-            <div class="detail-tab-item active">Chamado <span class="tab-cnt">${(msgs||[]).length}</span></div>
-            <div class="detail-tab-item">Estatísticas</div>
-            <div class="detail-tab-item">Imprimir PDF</div>
-          </div>
-          <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-            <div class="msgs-area" id="msgs-area">
-              ${(msgs||[]).map(m => renderMsg(m)).join('')}
-            </div>
-            <div class="reply-bar">
-              <input type="text" class="reply-input" id="reply-input" placeholder="Escreva uma mensagem..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){sendMsg(${chamado.id});event.preventDefault()}" />
-              <button class="btn btn-primary btn-sm" onclick="sendMsg(${chamado.id})">✉️ Enviar</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="detail-sidebar">
-        <div class="detail-section-title">ℹ️ Chamado</div>
-        ${[
-          ['Entidade', loja ? `${loja.codigo} — ${loja.nome}` : '—'],
-          ['Data de abertura', fmtDate(chamado.created_at)],
-          ['Categoria', catLabel(chamado.categoria)],
-          ['Status', chamado.status],
-          ['Prioridade', chamado.prioridade],
-        ].map(([l,v]) => `<div class="detail-row"><div class="detail-row-lbl">${l}</div><div class="detail-row-val">${v}</div></div>`).join('')}
-        <div class="detail-section-title" style="margin-top:16px">👤 Requerente</div>
-        <div class="actor-row">
-          <div class="actor-avatar" style="background:var(--red)">${(currentProfile?.nome||'U')[0]}</div>
+/* ── HOME ── */
+async function renderHome(pg){
+  pg.innerHTML=`<div class="loading"><div class="spin"></div> Carregando...</div>`;
+  let q=sb.from('chamados').select('*').order('created_at',{ascending:false});
+  if(PROF?.papel==='gerente')q=q.eq('loja_id',PROF.loja_id);
+  const{data:all}=await q;
+  const A=all||[];
+  const ab=A.filter(x=>x.status!=='fechado').length;
+  const ag=A.filter(x=>x.status==='aguardando').length;
+  const fc=A.filter(x=>x.status==='fechado').length;
+  pg.innerHTML=`
+  <div class="pg-title">Bem-vindo, ${PROF?.nome?.split(' ')[0]||'Usuário'} 👋</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-n">${ab}</div><div class="stat-l">🎫 Chamados em aberto</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--red)">${ag}</div><div class="stat-l">⏳ Aguardando atendimento</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--green)">${fc}</div><div class="stat-l">✅ Fechados no período</div></div>
+  </div>
+  <div class="home-grid">
+    <div class="card">
+      <div class="card-hd">📋 Últimos chamados</div>
+      <div class="card-bd">
+        ${A.length===0?'<p style="font-size:12px;color:var(--text2)">Nenhum chamado ainda. Abra o primeiro!</p>':A.slice(0,5).map(c=>`
+        <div class="rec-it">
           <div>
-            <div style="font-size:12px;font-weight:500">${currentProfile?.nome || '—'}</div>
-            <div style="font-size:10px;color:var(--text2)">${currentProfile?.papel || '—'}</div>
+            <div class="rec-lnk" onclick="goPage('detail',{id:${c.id}})">#${c.id} — ${c.titulo.substring(0,42)}${c.titulo.length>42?'...':''}</div>
+            <div class="rec-dt">${lojaStr(c.loja_id)} · ${fdt(c.created_at)}</div>
           </div>
-        </div>
-        <div class="detail-section-title" style="margin-top:8px">🔧 Atribuído</div>
-        <div style="font-size:12px;color:var(--text2)">Pendente</div>
+          ${sbadge(c.status)}
+        </div>`).join('')}
+        <div style="margin-top:14px"><button class="btn btn-sm" onclick="goPage('chamados')">Ver todos os chamados →</button></div>
       </div>
-    </div>`;
-}
-
-function renderMsg(m) {
-  const isForm = m.conteudo.startsWith('📋');
-  const isAuto = m.conteudo.startsWith('✅');
-  const cls = isForm ? 'msg-form' : isAuto ? 'msg-auto' : 'msg-user';
-  const author = isAuto ? '🤖 Suporte WFFOOD (automático)' : (currentProfile?.nome || 'Usuário');
-  const content = m.conteudo
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/\n/g, '<br>');
-  return `<div class="msg ${cls}">
-    <div class="msg-meta">🕐 ${fmtDate(m.created_at)} &nbsp; 👤 ${author}</div>
-    <div class="msg-text">${content}</div>
+    </div>
+    <div class="card">
+      <div class="card-hd">➕ Abrir novo chamado</div>
+      <div class="card-bd">
+        <button class="qbtn" onclick="goPage('novo',{cat:'estrutural'})"><span class="qdot" style="background:var(--blue)"></span> Manutenção Estrutural</button>
+        <button class="qbtn" onclick="goPage('novo',{cat:'equipamentos'})"><span class="qdot" style="background:var(--green)"></span> Manutenção Equipamentos</button>
+        <button class="qbtn" onclick="goPage('novo',{cat:'ti'})"><span class="qdot" style="background:var(--purple)"></span> Manutenção TI (Informática)</button>
+      </div>
+    </div>
   </div>`;
 }
 
-async function sendMsg(chamadoId) {
-  const input = document.getElementById('reply-input');
-  const txt = input.value.trim();
-  if (!txt) return;
-  input.value = '';
-  const { data: msg } = await supabase.from('mensagens').insert({
-    chamado_id: chamadoId, autor_id: currentUser.id, conteudo: txt
-  }).select().single();
-  if (msg) {
-    const area = document.getElementById('msgs-area');
-    if (area) { area.innerHTML += renderMsg(msg); area.scrollTop = area.scrollHeight; }
-  }
-}
-
-async function updateStatus(id, newStatus) {
-  const { error } = await supabase.from('chamados').update({ status: newStatus }).eq('id', id);
-  if (error) toast('Erro ao atualizar status', 'error');
-  else toast('Status atualizado!', 'success');
-}
-
-// ===================== ADMIN =====================
-async function renderAdmin(pc) {
-  if (currentProfile?.papel !== 'gestor') {
-    pc.innerHTML = '<p style="color:var(--text2)">Acesso restrito a gestores.</p>'; return;
-  }
-  pc.innerHTML = `<div class="loading"><div class="spinner"></div> Carregando usuários...</div>`;
-  const { data: users } = await supabase.from('perfis').select('*').order('nome');
-  pc.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-      <div class="section-title" style="margin:0">Gerenciar Usuários</div>
-      <button class="btn btn-primary" onclick="openModalUser()">➕ Adicionar usuário</button>
+/* ── FORMULÁRIOS ── */
+function renderForms(pg){
+  pg.innerHTML=`
+  <div class="pg-title">Selecione a categoria</div>
+  <div class="cat-list">
+    <div class="cat-card" onclick="goPage('novo',{cat:'estrutural'})">
+      <div class="cat-ico ci-e">🏗</div>
+      <div style="flex:1"><div class="cat-name">Manutenção Estrutural</div><div class="cat-desc">Problemas físicos da loja: teto, piso, paredes, elétrica, hidráulica, pintura, portas</div></div>
+      <span style="font-size:22px;color:var(--text3)">›</span>
     </div>
-    <div class="admin-card">
-      <div class="admin-card-header">
-        <div class="admin-card-title">👥 Usuários cadastrados (${(users||[]).length})</div>
+    <div class="cat-card" onclick="goPage('novo',{cat:'equipamentos'})">
+      <div class="cat-ico ci-q">🔧</div>
+      <div style="flex:1"><div class="cat-name">Manutenção Equipamentos</div><div class="cat-desc">Equipamentos de cozinha: fritadeiras, chapas, freezers, estufas, equipamentos GLP</div></div>
+      <span style="font-size:22px;color:var(--text3)">›</span>
+    </div>
+    <div class="cat-card" onclick="goPage('novo',{cat:'ti'})">
+      <div class="cat-ico ci-t">💻</div>
+      <div style="flex:1"><div class="cat-name">Manutenção TI (Informática)</div><div class="cat-desc">Sistemas e equipamentos de TI: PDV, KDS, impressoras, redes, tablets, sistemas</div></div>
+      <span style="font-size:22px;color:var(--text3)">›</span>
+    </div>
+  </div>`;
+}
+
+/* ── FORM CHAMADO ── */
+function renderFormChamado(pg,cat){
+  const lOpts=LOJAS.map(l=>`<option value="${l.id}">${l.codigo} — ${l.nome}</option>`).join('');
+  const lojaFld=PROF?.papel==='gerente'&&PROF?.loja_id
+    ?`<select class="fsel" id="floja" disabled style="width:100%;opacity:.8"><option value="${PROF.loja_id}">${lojaStr(PROF.loja_id)}</option></select>`
+    :`<select class="fsel" id="floja" style="width:100%"><option value="">Selecione a loja...</option>${lOpts}</select>`;
+  pg.innerHTML=`
+  <div class="pg-title">${catLbl(cat)}</div>
+  <div class="form-card">
+    <div class="form-tabs"><span class="form-tab">Chamado</span></div>
+    <div class="form-bd" id="fbd">
+      <div class="fg"><label class="fl">Selecione a loja <span class="req">*</span></label>${lojaFld}</div>
+      <div class="fg">
+        <label class="fl">Descrição do chamado <span class="req">*</span></label>
+        <textarea class="fta" id="fdesc" placeholder="Descreva o problema detalhadamente. Ex: A fritadeira 01 não está aquecendo acima de 120°C mesmo no nível máximo. O problema ocorre desde ontem às 14h..."></textarea>
       </div>
-      <div class="admin-card-body">
-        ${(users||[]).length === 0 ? '<p style="color:var(--text2);font-size:13px">Nenhum usuário cadastrado ainda.</p>' :
-          (users||[]).map(u => `
-            <div class="user-row">
-              <div class="actor-avatar" style="background:${u.papel==='gestor'?'var(--red)':u.papel==='tecnico'?'var(--purple)':'var(--blue)'};width:36px;height:36px">
-                ${u.nome[0]}
-              </div>
-              <div class="user-info">
-                <div class="user-name">${u.nome}</div>
-                <div class="user-email">${u.email}</div>
-              </div>
-              <div style="display:flex;align-items:center;gap:8px">
-                <span class="badge ${u.papel==='gestor'?'badge-alta':u.papel==='tecnico'?'badge-atendimento':'badge-aguardando'}">${u.papel}</span>
-                <span style="font-size:11px;color:var(--text2)">${lojaName(u.loja_id)}</span>
-              </div>
-            </div>`).join('')}
+      <div class="fg">
+        <label class="fl">Prioridade</label>
+        <select class="fsel" id="fprio">
+          <option value="baixa">🟡 Baixa — Não impacta operação</option>
+          <option value="media" selected>🟠 Média — Impacta operação parcialmente</option>
+          <option value="alta">🔴 Alta — Operação parada ou comprometida</option>
+        </select>
       </div>
-    </div>`;
-  // Preenche select de lojas no modal
-  const selLoja = document.getElementById('new-loja');
-  if (selLoja && selLoja.options.length <= 1) {
-    allLojas.forEach(l => {
-      const opt = document.createElement('option');
-      opt.value = l.id;
-      opt.textContent = `${l.codigo} — ${l.nome}`;
-      selLoja.appendChild(opt);
-    });
-  }
+      <div class="fg">
+        <label class="fl">Número do chamado externo</label>
+        <input type="text" class="finp" id="fext" placeholder="Opcional — número no sistema do fornecedor" />
+      </div>
+      <div class="fg">
+        <label class="fl">Número de telefone <span class="req">*</span></label>
+        <div class="fhint">Formato: DDD 9XXXX-XXXX</div>
+        <input type="tel" class="finp" id="ftel" placeholder="Ex: 65 99999-9999" />
+      </div>
+      <div class="fg">
+        <label class="fl">Foto / Vídeo do problema</label>
+        <div class="upzone" id="upz"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="handleDrop(event)">
+          <p>📎 Arraste fotos ou vídeos aqui, ou</p>
+          <div class="upzone-btns">
+            <button class="btn btn-sm" type="button" onclick="document.getElementById('ffile').click()">Escolher arquivos</button>
+            <span id="ffname" style="font-size:11px;color:var(--text2)">Nenhum arquivo selecionado</span>
+          </div>
+          <input type="file" id="ffile" multiple accept="image/*,video/*,.pdf" style="display:none" onchange="onFiles(this)" />
+          <p style="font-size:10px;color:var(--text3);margin-top:8px">Imagens, vídeos ou PDF · Máx. 20MB cada</p>
+        </div>
+        <div class="file-preview" id="fprev"></div>
+      </div>
+      <div class="form-footer">
+        <button class="btn btn-primary" id="fsubmit" onclick="submitChamado('${cat}')">✉️ Enviar chamado</button>
+      </div>
+    </div>
+  </div>`;
 }
 
-function openModalUser() {
-  document.getElementById('modal-user').classList.add('open');
-  document.getElementById('new-nome').value = '';
-  document.getElementById('new-email').value = '';
-  document.getElementById('new-senha').value = '';
-  document.getElementById('new-papel').value = 'gerente';
+function onFiles(inp){
+  _droppedFiles=null;
+  onFilesRaw(inp.files);
 }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-async function criarUsuario() {
-  const nome = document.getElementById('new-nome').value.trim();
-  const email = document.getElementById('new-email').value.trim();
-  const senha = document.getElementById('new-senha').value.trim();
-  const papel = document.getElementById('new-papel').value;
-  const loja_id = document.getElementById('new-loja').value || null;
-  if (!nome || !email || !senha) { toast('Preencha todos os campos obrigatórios!', 'error'); return; }
-  if (papel === 'gerente' && !loja_id) { toast('Selecione a loja do gerente!', 'error'); return; }
-  const { data, error } = await supabase.auth.signUp({ email, password: senha, options: { data: { nome } } });
-  if (error) { toast('Erro: ' + error.message, 'error'); return; }
-  if (data.user) {
-    await supabase.from('perfis').insert({ id: data.user.id, nome, email, papel, loja_id: loja_id || null });
-  }
-  toast(`Usuário ${nome} criado com sucesso!`, 'success');
-  closeModal('modal-user');
-  navigate('admin');
+let _droppedFiles=null;
+function handleDrop(e){
+  e.preventDefault();e.currentTarget.classList.remove('drag');
+  _droppedFiles=e.dataTransfer.files;
+  const inp=document.getElementById('ffile');
+  onFilesRaw(_droppedFiles);
 }
-
-// ===================== UI HELPERS =====================
-function toggleDD() { document.getElementById('user-dd').classList.toggle('open'); }
-function closeDD() { document.getElementById('user-dd').classList.remove('open'); }
-document.addEventListener('click', e => { if (!e.target.closest('.avatar-btn')) closeDD(); });
-
-function toggleSidebar() {
-  sidebarCollapsed = !sidebarCollapsed;
-  const sb = document.getElementById('sidebar');
-  sb.classList.toggle('collapsed', sidebarCollapsed);
-  document.querySelectorAll('.nav-label, .brand-text').forEach(el => {
-    el.style.display = sidebarCollapsed ? 'none' : '';
+function onFilesRaw(files){
+  const names=Array.from(files).map(f=>f.name).join(', ');
+  const el=document.getElementById('ffname');if(el)el.textContent=names||'Nenhum arquivo';
+  const prev=document.getElementById('fprev');if(prev)prev.innerHTML='';
+  Array.from(files).forEach(f=>{
+    if(f.type.startsWith('image/')){
+      const r=new FileReader();
+      r.onload=e=>{if(prev)prev.innerHTML+=`<img src="${e.target.result}" class="prev-img" alt="preview">`;};
+      r.readAsDataURL(f);
+    } else {if(prev)prev.innerHTML+=`<div class="prev-file">📄 ${f.name}</div>`;}
   });
 }
 
-function fmtText(cmd) { document.execCommand(cmd); }
+async function submitChamado(cat){
+  const loja_id=document.getElementById('floja').value;
+  const desc=document.getElementById('fdesc').value.trim();
+  const tel=document.getElementById('ftel').value.trim();
+  const prio=document.getElementById('fprio').value;
+  if(!loja_id){toast('⚠️ Selecione a loja!','err');return;}
+  if(!desc){toast('⚠️ Descreva o problema!','err');return;}
+  if(!tel){toast('⚠️ Informe o telefone!','err');return;}
+  const btn=document.getElementById('fsubmit');
+  btn.textContent='Enviando...';btn.disabled=true;
+  const loja=LOJAS.find(l=>l.id===loja_id);
+  const titulo=`${catLbl(cat)} — ${loja?.codigo||''}`;
+  const{data:ch,error}=await sb.from('chamados').insert({titulo,descricao:desc,categoria:cat,prioridade:prio,loja_id,criado_por:ME.id}).select().single();
+  if(error){toast('Erro: '+error.message,'err');btn.textContent='✉️ Enviar chamado';btn.disabled=false;return;}
+  // Upload de arquivos
+  const inp=document.getElementById('ffile');
+  const files=Array.from(_droppedFiles||inp.files||[]);
+  const urls=[];
+  for(const f of files){
+    if(f.size>20*1024*1024){toast('⚠️ Arquivo '+f.name+' é maior que 20MB','err');continue;}
+    const path=`ch${ch.id}/${Date.now()}_${f.name.replace(/[^a-z0-9.]/gi,'_')}`;
+    const{data:up}=await sb.storage.from('anexos').upload(path,f,{upsert:true});
+    if(up){const{data:u}=sb.storage.from('anexos').getPublicUrl(path);urls.push(u.publicUrl);}
+  }
+  const imgTxt=urls.map(u=>`\n[IMG:${u}]`).join('');
+  await sb.from('mensagens').insert({chamado_id:ch.id,autor_id:ME.id,autor_nome:PROF?.nome||ME.email,autor_email:ME.email,
+    conteudo:`📋 *Dados do formulário*\n\n**Loja:** ${loja?.codigo} — ${loja?.nome}\n**Categoria:** ${catLbl(cat)}\n**Descrição:** ${desc}\n**Prioridade:** ${prio}\n**Telefone:** ${tel}${imgTxt}`});
+  await sb.from('mensagens').insert({chamado_id:ch.id,autor_id:null,autor_nome:'Sistema WFFOOD',autor_email:null,
+    conteudo:`✅ *Confirmação de recebimento*\n\nOlá, recebemos sua solicitação #${ch.id}!\n\nEm breve um técnico iniciará o atendimento. Você pode acompanhar o andamento aqui nesta plataforma.\n\n📌 *Dica:* Quanto mais fotos e detalhes do problema, mais rápida será a solução.\n\n📞 Em caso de urgência, contate o suporte informando o nº do chamado: **#${ch.id}**`});
+  document.getElementById('fbd').innerHTML=`
+    <div class="success-box">
+      <div class="suc-ico">✅</div>
+      <div class="suc-title">Chamado #${ch.id} aberto com sucesso!</div>
+      <div class="suc-sub">Sua solicitação foi registrada. Em breve um técnico iniciará o atendimento.</div>
+      <div class="suc-btns">
+        <button class="btn btn-primary" onclick="goPage('detail',{id:${ch.id}})">👁 Acompanhar chamado</button>
+        <button class="btn" onclick="goPage('chamados')">📋 Ver todos os chamados</button>
+        <button class="btn" onclick="goPage('forms')">➕ Novo chamado</button>
+      </div>
+    </div>`;
+}
 
-// ===================== INIT =====================
-supabase.auth.getSession().then(({ data: { session } }) => {
-  if (session) initApp(session.user);
-});
+/* ── LISTA CHAMADOS ── */
+async function renderChamados(pg){
+  pg.innerHTML=`<div class="loading"><div class="spin"></div> Carregando chamados...</div>`;
+  let q=sb.from('chamados').select('*').order('created_at',{ascending:false});
+  if(PROF?.papel==='gerente')q=q.eq('loja_id',PROF.loja_id);
+  const{data}=await q;
+  window._CHS=data||[];
+  pg.innerHTML=`
+  <div class="filter-bar">
+    <select class="fsel-sm" id="fst" onchange="applyFilter()"><option value="">Todos os status</option><option value="aguardando">Aguardando</option><option value="em_atendimento">Em atendimento</option><option value="fechado">Fechado</option></select>
+    <select class="fsel-sm" id="fct" onchange="applyFilter()"><option value="">Todas as categorias</option><option value="estrutural">Estrutural</option><option value="equipamentos">Equipamentos</option><option value="ti">TI</option></select>
+    <select class="fsel-sm" id="fpr" onchange="applyFilter()"><option value="">Todas as prioridades</option><option value="alta">Alta</option><option value="media">Média</option><option value="baixa">Baixa</option></select>
+    <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="goPage('forms')">➕ Novo chamado</button>
+  </div>
+  <div class="tbl-wrap" id="tchs"></div>
+  <div style="margin-top:10px;font-size:12px;color:var(--text2)" id="tcnt"></div>`;
+  applyFilter();
+}
+function applyFilter(){
+  const st=document.getElementById('fst')?.value;
+  const ct=document.getElementById('fct')?.value;
+  const pr=document.getElementById('fpr')?.value;
+  let list=window._CHS||[];
+  if(st)list=list.filter(c=>c.status===st);
+  if(ct)list=list.filter(c=>c.categoria===ct);
+  if(pr)list=list.filter(c=>c.prioridade===pr);
+  const el=document.getElementById('tchs');
+  const cnt=document.getElementById('tcnt');
+  if(!el)return;
+  if(list.length===0){el.innerHTML=`<div class="tbl-empty">📭 Nenhum chamado encontrado com esses filtros.</div>`;if(cnt)cnt.textContent='';return;}
+  el.innerHTML=`<table>
+    <thead><tr>
+      <th style="width:60px">ID</th>
+      <th>Título</th>
+      <th>Loja</th>
+      <th style="width:120px">Prioridade</th>
+      <th style="width:200px">Status</th>
+      <th style="width:140px">Data de Abertura</th>
+    </tr></thead>
+    <tbody>${list.map(c=>`
+      <tr class="cr" onclick="goPage('detail',{id:${c.id}})">
+        <td style="font-weight:800;color:var(--text2)">#${c.id}</td>
+        <td><span class="tlink">${c.titulo}</span></td>
+        <td style="font-size:11px;color:var(--text2)">${lojaStr(c.loja_id)}</td>
+        <td>${pbadge(c.prioridade)}</td>
+        <td>${sbadge(c.status)}</td>
+        <td style="font-size:11px;color:var(--text2)">${fdt(c.created_at)}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+  if(cnt)cnt.textContent=`Exibindo ${list.length} chamado${list.length!==1?'s':''}`;
+}
+
+/* ── DETALHE CHAMADO ── */
+let _CDATA=null,_MSGS=[];
+async function renderDetail(pg,id){
+  pg.innerHTML=`<div class="loading"><div class="spin"></div> Carregando chamado...</div>`;
+  const{data:c}=await sb.from('chamados').select('*').eq('id',id).single();
+  if(!c){pg.innerHTML='<p style="padding:24px;color:var(--text2)">Chamado não encontrado.</p>';return;}
+  const{data:msgs}=await sb.from('mensagens').select('*').eq('chamado_id',id).order('created_at');
+  _CDATA=c;_MSGS=msgs||[];
+  const loja=LOJAS.find(l=>l.id===c.loja_id);
+  const sc=c.status==='aguardando'?'#43a047':c.status==='em_atendimento'?'#1e88e5':'#9e9e9e';
+  pg.style.cssText='padding:0;overflow:hidden;display:flex;flex-direction:column;flex:1';
+  pg.innerHTML=`
+  <div class="det-layout" style="flex:1;min-height:0">
+    <div class="det-main">
+      <div class="det-hd">
+        <div style="width:10px;height:10px;border-radius:50%;background:${sc};flex-shrink:0"></div>
+        <div class="det-title">${c.titulo} (#${c.id})</div>
+        ${PROF?.papel!=='gerente'?`
+        <select class="fsel-sm" onchange="updStatus(${c.id},this.value)" style="margin-left:auto">
+          <option value="aguardando"${c.status==='aguardando'?' selected':''}>Aguardando</option>
+          <option value="em_atendimento"${c.status==='em_atendimento'?' selected':''}>Em atendimento</option>
+          <option value="fechado"${c.status==='fechado'?' selected':''}>Fechado</option>
+        </select>`:''}
+        <button class="btn btn-sm" onclick="window.print()" style="margin-left:8px">🖨️ Imprimir</button>
+      </div>
+      <div class="det-body">
+        <div class="det-tabs">
+          <div class="dt-it act" id="tab-ch" onclick="showTab('ch',${c.id})">Chamado <span class="dt-cnt">${_MSGS.length}</span></div>
+          <div class="dt-it" id="tab-st" onclick="showTab('st',${c.id})">Estatísticas</div>
+          <div class="dt-it" id="tab-pr" onclick="showTab('pr',${c.id})">Imprimir PDF</div>
+        </div>
+        <div id="tabcontent" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0">
+          ${renderMsgTab(c.id)}
+        </div>
+      </div>
+    </div>
+    <div class="det-side">
+      <div class="ds-sec">
+        <div class="ds-title">ℹ️ Informações</div>
+        ${[
+          ['Entidade', loja?`${loja.codigo} — ${loja.nome}`:'—'],
+          ['Data de abertura', fdt(c.created_at)],
+          ['Tipo', 'Incidente'],
+          ['Categoria', catLbl(c.categoria)],
+          ['Status', c.status==='aguardando'?'Aguardando atendimento':c.status==='em_atendimento'?'Em atendimento':'Fechado'],
+          ['Prioridade', c.prioridade.charAt(0).toUpperCase()+c.prioridade.slice(1)],
+        ].map(([l,v])=>`<div class="ds-row"><div class="ds-lbl">${l}</div><div class="ds-val">${v}</div></div>`).join('')}
+      </div>
+      <div class="ds-sec">
+        <div class="ds-title">👤 Requerente</div>
+        <div id="ds-requerente"><div style="font-size:11px;color:var(--text3)">Carregando...</div></div>
+      </div>
+      <div class="ds-sec">
+        <div class="ds-title">🔧 Atribuído a</div>
+        <div style="font-size:12px;color:var(--text3);font-style:italic">Não atribuído</div>
+      </div>
+      <div class="ds-sec">
+        <div class="ds-title">🔗 Chamado relacionado</div>
+        <div style="font-size:12px;color:var(--text3);font-style:italic">Nenhum</div>
+      </div>
+    </div>
+  </div>`;
+  setTimeout(()=>{
+    const a=document.getElementById('msgsarea');if(a)a.scrollTop=a.scrollHeight;
+    // Carrega perfil do criador do chamado
+    if(c.criado_por){
+      sb.from('perfis').select('nome,email,papel').eq('id',c.criado_por).single().then(({data:cr})=>{
+        const el=document.getElementById('ds-requerente');
+        if(el&&cr){
+          const papel=cr.papel==='gestor'?'Gestor':cr.papel==='tecnico'?'Técnico':'Gerente de Loja';
+          el.innerHTML=`<div class="actor-row"><div class="actor-av" style="background:var(--red);width:32px;height:32px">${'${cr.nome[0].toUpperCase()}'}</div><div><div style="font-size:12px;font-weight:700">${'${cr.nome}'}</div><div style="font-size:10px;color:var(--text2)">${'${papel}'} · ${'${cr.email}'}</div></div></div>`;
+        } else if(el){el.innerHTML='<div style="font-size:11px;color:var(--text3)">—</div>';}
+      });
+    } else {
+      const el=document.getElementById('ds-requerente');
+      if(el)el.innerHTML=`<div class="actor-row"><div class="actor-av" style="background:var(--red);width:32px;height:32px">${'${(PROF?.nome||"U")[0]}'}</div><div><div style="font-size:12px;font-weight:700">${'${PROF?.nome||"—"}'}</div><div style="font-size:10px;color:var(--text2)">${'${PROF?.email||""}'}</div></div></div>`;
+    }
+  },100);
+}
+
+function renderMsgTab(cid){
+  return`<div class="msgs-wrap" id="msgsarea">${_MSGS.map(m=>renderMsg(m)).join('')}</div>
+  <div class="reply-bar">
+    <input type="text" class="reply-inp" id="replyin" placeholder="Escreva uma mensagem..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){sendMsg(${cid});event.preventDefault()}" />
+    <label class="btn btn-sm" for="replyfile" title="Anexar foto" style="cursor:pointer">📎</label>
+    <input type="file" id="replyfile" accept="image/*" style="display:none" onchange="sendImgMsg(${cid},this)" />
+    <button class="btn btn-primary btn-sm" onclick="sendMsg(${cid})">✉️ Enviar</button>
+  </div>`;
+}
+
+function renderMsg(m){
+  const isForm=m.conteudo.startsWith('📋');
+  const isAuto=m.conteudo.startsWith('✅');
+  const cls=isForm?'msg-form':isAuto?'msg-auto':'msg-user';
+  const who=isAuto?'🤖 Sistema automático':(m.autor_nome||(m.autor_email?m.autor_email.split('@')[0]:null)||PROF?.nome||'Usuário');
+  const imgRe=/\[IMG:(https?:\/\/[^\]]+)\]/g;
+  const imgs=[];let m2;
+  while((m2=imgRe.exec(m.conteudo))!==null)imgs.push(m2[1]);
+  const txt=m.conteudo.replace(/\[IMG:[^\]]+\]/g,'')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/\n/g,'<br>');
+  const ihtml=imgs.length?`<div class="msg-imgs">${imgs.map(u=>`<img src="${u}" alt="foto" onclick="openLB('${u}')" loading="lazy">`).join('')}</div>`:'';
+  return`<div class="msg ${cls}">
+    <div class="msg-meta">🕐 ${fdt(m.created_at)} &nbsp;&nbsp; 👤 ${who}</div>
+    <div class="msg-txt">${txt}</div>${ihtml}
+  </div>`;
+}
+
+function showTab(tab,cid){
+  document.querySelectorAll('.dt-it').forEach(x=>x.classList.remove('act'));
+  document.getElementById('tab-'+tab).classList.add('act');
+  const tc=document.getElementById('tabcontent');
+  if(tab==='ch'){
+    tc.style.overflow='hidden';tc.style.cssText='flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0';
+    tc.innerHTML=renderMsgTab(cid);
+    setTimeout(()=>{const a=document.getElementById('msgsarea');if(a)a.scrollTop=a.scrollHeight;},50);
+  } else if(tab==='st'){
+    tc.style.overflow='auto';
+    tc.innerHTML=`<div class="stats-body">
+      <div class="ds-title" style="margin-bottom:16px">📊 Linha do tempo</div>
+      <div class="tl">
+        <div class="tl-it"><div class="tl-dot done">✓</div><div><div class="tl-lbl">Chamado aberto</div><div class="tl-sub">${fdt(_CDATA?.created_at)}</div></div></div>
+        <div class="tl-it"><div class="tl-dot now">●</div><div><div class="tl-lbl">Status atual</div><div class="tl-sub">${_CDATA?.status==='aguardando'?'Aguardando atendimento':_CDATA?.status==='em_atendimento'?'Em atendimento':'Fechado'}</div></div></div>
+        ${_CDATA?.status!=='fechado'?`
+        <div class="tl-it"><div class="tl-dot">○</div><div><div class="tl-lbl">Tempo para atendimento</div><div class="tl-sub">Prazo: amanhã</div></div></div>
+        <div class="tl-it"><div class="tl-dot">○</div><div><div class="tl-lbl">Tempo para solução</div><div class="tl-sub">Prazo: 2 dias úteis</div></div></div>`:'<div class="tl-it"><div class="tl-dot done">✓</div><div><div class="tl-lbl">Chamado encerrado</div><div class="tl-sub">Concluído</div></div></div>'}
+      </div>
+      <div class="ds-title" style="margin-bottom:12px">📈 Resumo</div>
+      <div class="stats-nums">
+        <div class="snum"><div class="snum-v">${_MSGS.length}</div><div class="snum-l">Mensagens</div></div>
+        <div class="snum"><div class="snum-v">${_MSGS.filter(m=>m.conteudo.includes('[IMG:')).length}</div><div class="snum-l">Fotos anexadas</div></div>
+        <div class="snum"><div class="snum-v">${_CDATA?.prioridade||'—'}</div><div class="snum-l">Prioridade</div></div>
+        <div class="snum"><div class="snum-v">${_CDATA?.status==='fechado'?'✅':'⏳'}</div><div class="snum-l">Situação</div></div>
+      </div>
+    </div>`;
+  } else if(tab==='pr'){
+    tc.style.overflow='auto';
+    tc.innerHTML=`<div style="padding:24px">
+      <div class="ds-title" style="margin-bottom:14px">🖨️ Imprimir / Salvar PDF</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Selecione o que incluir na impressão:</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="pc1" checked> Dados do chamado</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="pc2" checked> Histórico de mensagens</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="pc3"> Fotos e anexos</label>
+      </div>
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+      <p style="font-size:11px;color:var(--text3);margin-top:12px">Dica: no diálogo de impressão, selecione "Salvar como PDF" para obter um arquivo.</p>
+    </div>`;
+  }
+}
+
+async function sendMsg(cid){
+  const inp=document.getElementById('replyin');
+  const txt=inp.value.trim();if(!txt)return;
+  inp.value='';inp.focus();
+  const{data:msg}=await sb.from('mensagens').insert({chamado_id:cid,autor_id:ME.id,autor_nome:PROF?.nome||ME.email,autor_email:ME.email,conteudo:txt}).select().single();
+  if(msg){
+    _MSGS.push(msg);
+    const a=document.getElementById('msgsarea');
+    if(a){a.innerHTML+=renderMsg(msg);a.scrollTop=a.scrollHeight;}
+  }
+}
+async function sendImgMsg(cid,inp){
+  const f=inp.files[0];if(!f)return;
+  if(f.size>20*1024*1024){toast('Arquivo muito grande (máx. 20MB)','err');return;}
+  toast('Enviando foto...','');
+  const path=`ch${cid}/${Date.now()}_${f.name.replace(/[^a-z0-9.]/gi,'_')}`;
+  const{data:up}=await sb.storage.from('anexos').upload(path,f,{upsert:true});
+  if(up){
+    const{data:u}=sb.storage.from('anexos').getPublicUrl(path);
+    const{data:msg}=await sb.from('mensagens').insert({chamado_id:cid,autor_id:ME.id,autor_nome:PROF?.nome||ME.email,autor_email:ME.email,conteudo:`📎 Foto anexada\n[IMG:${u.publicUrl}]`}).select().single();
+    if(msg){
+      _MSGS.push(msg);
+      const a=document.getElementById('msgsarea');
+      if(a){a.innerHTML+=renderMsg(msg);a.scrollTop=a.scrollHeight;}
+      toast('Foto enviada!','ok');
+    }
+  } else {toast('Erro ao enviar foto','err');}
+  inp.value='';
+}
+async function updStatus(id,st){
+  const{error}=await sb.from('chamados').update({status:st,updated_at:new Date().toISOString()}).eq('id',id);
+  if(error)toast('Erro ao atualizar status','err');
+  else{toast('Status atualizado!','ok');const d=document.querySelector('.det-hd div:first-child');if(d)d.style.background=st==='aguardando'?'#43a047':st==='em_atendimento'?'#1e88e5':'#9e9e9e';}
+}
+
+/* ── ADMIN ── */
+async function renderAdmin(pg){
+  if(PROF?.papel!=='gestor'){pg.innerHTML='<div style="padding:24px;color:var(--text2)">Acesso restrito a gestores.</div>';return;}
+  pg.innerHTML=`<div class="loading"><div class="spin"></div></div>`;
+  const{data:users}=await sb.from('perfis').select('*').order('nome');
+  pg.innerHTML=`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+    <div class="pg-title" style="margin:0">👥 Gerenciar Usuários</div>
+    <button class="btn btn-primary" onclick="openModal()">➕ Adicionar usuário</button>
+  </div>
+  <div class="adm-card">
+    <div class="adm-hd"><div class="adm-title">Usuários cadastrados (${(users||[]).length})</div></div>
+    <div class="adm-body">
+      ${(users||[]).length===0?'<p style="padding:16px 0;font-size:13px;color:var(--text2)">Nenhum usuário cadastrado.</p>':(users||[]).map(u=>`
+      <div class="usr-row">
+        <div class="actor-av" style="background:${u.papel==='gestor'?'var(--red)':u.papel==='tecnico'?'var(--purple)':'var(--blue)'};width:38px;height:38px">${(u.nome||'?')[0].toUpperCase()}</div>
+        <div class="usr-info">
+          <div class="usr-name">${u.nome}</div>
+          <div class="usr-email">${u.email}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0">
+          <span class="badge ${u.papel==='gestor'?'bh':u.papel==='tecnico'?'ba':'bw'}">${u.papel==='gestor'?'Gestor':u.papel==='tecnico'?'Técnico':'Gerente'}</span>
+          ${u.loja_id?`<span style="font-size:10px;color:var(--text2)">${lojaStr(u.loja_id)}</span>`:''}
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+  // preenche select de lojas no modal
+  const sel=document.getElementById('uloja');
+  if(sel&&sel.options.length<=1){
+    LOJAS.forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=`${l.codigo} — ${l.nome}`;sel.appendChild(o);});
+  }
+}
+function openModal(){document.getElementById('muser').classList.add('open');}
+function closeModal(){document.getElementById('muser').classList.remove('open');}
+function toggleLojaFg(){
+  const p=document.getElementById('upapel').value;
+  document.getElementById('ulojafg').style.display=p==='gerente'?'block':'none';
+}
+async function criarUser(){
+  const nome=document.getElementById('unome').value.trim();
+  const email=document.getElementById('uemail').value.trim();
+  const senha=document.getElementById('usenha').value.trim();
+  const papel=document.getElementById('upapel').value;
+  const loja_id=document.getElementById('uloja').value||null;
+  if(!nome||!email||!senha){toast('⚠️ Preencha todos os campos!','err');return;}
+  if(papel==='gerente'&&!loja_id){toast('⚠️ Selecione a loja do gerente!','err');return;}
+  if(senha.length<6){toast('⚠️ Senha deve ter mínimo 6 caracteres!','err');return;}
+  const btn=document.querySelector('#muser .btn-primary');
+  btn.textContent='Criando...';btn.disabled=true;
+  const{data,error}=await sb.auth.signUp({email,password:senha,options:{emailRedirectTo:null,data:{nome}}});
+  btn.textContent='✅ Criar usuário';btn.disabled=false;
+  if(error){toast('Erro: '+error.message,'err');return;}
+  if(data.user){
+    const{error:pe}=await sb.from('perfis').insert({id:data.user.id,nome,email,papel,loja_id:loja_id||null});
+    if(pe){toast('Usuário criado mas erro no perfil: '+pe.message,'err');return;}
+    // Confirmar email automaticamente
+    await sb.rpc('confirm_user_email',{user_id:data.user.id}).catch(()=>{});
+  }
+  toast(`✅ ${nome} criado com sucesso! Senha: ${senha}`,'ok');
+  closeModal();
+  document.getElementById('unome').value='';
+  document.getElementById('uemail').value='';
+  document.getElementById('usenha').value='';
+  setTimeout(()=>renderAdmin(document.getElementById('pg')),600);
+}
+
+/* ── INIT ── */
+sb.auth.getSession().then(({data:{session}})=>{if(session)boot(session.user);});
 </script>
 </body>
 </html>

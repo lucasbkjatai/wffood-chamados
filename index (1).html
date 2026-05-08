@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WFFOOD — Sistema de Chamados</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+:root{--red:#e53935;--red-dark:#c62828;--sidebar:#1a1a1a;--bg:#f4f4f4;--white:#ffffff;--border:#e0e0e0;--text:#1a1a1a;--text2:#666;--green:#43a047;--blue:#1565c0;--purple:#6a1b9a}
+body{background:var(--bg);color:var(--text)}
+
+/* LOGIN */
+#login-screen{min-height:100vh;background:#222;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo h1{color:#fff;font-size:32px;font-weight:800;letter-spacing:-1px}
+.login-logo h1 span{color:var(--red)}
+.login-logo p{color:rgba(255,255,255,0.4);font-size:13px;margin-top:4px}
+.login-card{background:var(--red);border-radius:14px;padding:32px;width:100%;max-width:380px}
+.login-card label{display:block;color:rgba(255,255,255,0.9);font-size:12px;font-weight:500;margin-bottom:6px}
+.login-card input{width:100%;padding:10px 14px;border-radius:8px;border:none;font-size:14px;margin-bottom:16px;background:#fff;color:#333;outline:none}
+.login-card input:focus{box-shadow:0 0 0 3px rgba(255,255,255,0.3)}
+.forgot{color:rgba(255,255,255,0.7);font-size:12px;float:right;cursor:pointer;text-decoration:underline}
+.login-btn{width:100%;padding:12px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;transition:background 0.2s}
+.login-btn:hover{background:#333}
+.login-error{background:rgba(0,0,0,0.2);color:#fff;padding:8px 12px;border-radius:6px;font-size:12px;margin-bottom:12px;display:none}
+
+/* APP LAYOUT */
+#app{display:none;height:100vh;overflow:hidden}
+.layout{display:flex;height:100vh}
+.sidebar{width:200px;min-width:200px;background:var(--sidebar);display:flex;flex-direction:column;transition:width 0.2s}
+.sidebar.collapsed{width:56px;min-width:56px}
+.brand{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.brand-inner{display:flex;align-items:center;gap:10px}
+.brand-icon{width:32px;height:32px;min-width:32px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:800;flex-shrink:0}
+.brand-text{overflow:hidden}
+.brand-name{color:#fff;font-size:13px;font-weight:700;white-space:nowrap}
+.brand-sub{color:rgba(255,255,255,0.35);font-size:10px;white-space:nowrap}
+nav{flex:1;padding:8px 0;overflow:hidden}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;color:rgba(255,255,255,0.5);font-size:13px;border-left:3px solid transparent;transition:all 0.15s;white-space:nowrap;overflow:hidden}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.04)}
+.nav-item.active{color:#fff;background:rgba(229,57,53,0.15);border-left-color:var(--red)}
+.nav-item .icon{font-size:18px;flex-shrink:0;width:20px;text-align:center}
+.sidebar-foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.07)}
+.sidebar-foot-btn{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.3);font-size:11px;cursor:pointer;white-space:nowrap}
+.sidebar-foot-btn:hover{color:rgba(255,255,255,0.6)}
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:12px 24px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.breadcrumb a{color:var(--text2);cursor:pointer;text-decoration:none}
+.breadcrumb a:hover{color:var(--text)}
+.breadcrumb .sep{opacity:0.4}
+.topbar-right{display:flex;align-items:center;gap:14px;position:relative}
+.topbar-info{text-align:right}
+.topbar-info .client-lbl{font-size:10px;color:var(--text2)}
+.topbar-info .client-name{font-size:12px;font-weight:600}
+.avatar-btn{width:32px;height:32px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;position:relative}
+.dropdown{position:absolute;top:40px;right:0;background:#fff;border:1px solid var(--border);border-radius:12px;padding:6px 0;width:220px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,0.12);display:none}
+.dropdown.open{display:block}
+.dd-head{padding:10px 16px 10px;border-bottom:1px solid var(--border)}
+.dd-username{font-size:13px;font-weight:600}
+.dd-email{font-size:11px;color:var(--text2);margin-top:2px}
+.dd-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;font-size:13px;transition:background 0.1s}
+.dd-item:hover{background:#f5f5f5}
+.dd-item .icon{font-size:16px;color:var(--text2)}
+.dd-separator{height:1px;background:var(--border);margin:4px 0}
+.dd-item.danger{color:var(--red)}
+.dd-item.danger .icon{color:var(--red)}
+.page-content{flex:1;overflow-y:auto;padding:24px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:13px;color:var(--text);transition:all 0.15s;font-family:inherit}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-primary:hover{background:var(--red-dark)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-icon{padding:6px 8px}
+
+/* HOME */
+.home-title{font-size:20px;font-weight:700;margin-bottom:20px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:12px;padding:16px;border:1px solid var(--border)}
+.stat-num{font-size:28px;font-weight:700;margin-bottom:4px}
+.stat-lbl{font-size:12px;color:var(--text2)}
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.quick-card{background:#fff;border-radius:12px;padding:16px;border:1px solid var(--border)}
+.quick-card-title{font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.quick-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:13px;margin-bottom:8px;transition:all 0.15s;background:#fff;width:100%;text-align:left}
+.quick-btn:hover{border-color:var(--red);background:#fff5f5}
+.quick-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.recent-item{padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.recent-item:last-child{border-bottom:none}
+.recent-link{font-size:12px;color:var(--red);cursor:pointer;font-weight:500}
+.recent-link:hover{text-decoration:underline}
+.recent-date{font-size:10px;color:var(--text2);margin-top:2px}
+
+/* FORMULÁRIOS */
+.section-title{font-size:18px;font-weight:700;margin-bottom:20px}
+.forms-layout{display:grid;grid-template-columns:200px 1fr 200px;gap:20px}
+.forms-sidebar{font-size:13px}
+.forms-sidebar-title{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.forms-sidebar-item{padding:7px 10px;border-radius:6px;cursor:pointer;color:var(--red);transition:background 0.1s}
+.forms-sidebar-item:hover{background:#f5f5f5}
+.cat-cards{display:flex;flex-direction:column;gap:12px}
+.cat-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:16px}
+.cat-card:hover{border-color:var(--red);box-shadow:0 2px 8px rgba(229,57,53,0.1)}
+.cat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.cat-icon.est{background:#e3f2fd;color:var(--blue)}
+.cat-icon.eqp{background:#e8f5e9;color:var(--green)}
+.cat-icon.ti{background:#f3e5f5;color:var(--purple)}
+.cat-info{}
+.cat-name{font-size:15px;font-weight:600;margin-bottom:4px}
+.cat-desc{font-size:12px;color:var(--text2)}
+.forms-recent-title{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.forms-recent-item{padding:7px 0;border-bottom:1px solid var(--border);font-size:11px}
+.forms-recent-item:last-child{border-bottom:none}
+.forms-recent-link{color:var(--red);cursor:pointer}
+
+/* FORM NOVO CHAMADO */
+.form-title{font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.form-card{background:#fff;border:1px solid var(--border);border-radius:12px;max-width:680px;overflow:hidden}
+.form-tab-bar{background:#f9f9f9;padding:0 20px;border-bottom:1px solid var(--border)}
+.form-tab{display:inline-block;padding:12px 0;font-size:13px;font-weight:600;color:var(--red);border-bottom:2px solid var(--red)}
+.form-body{padding:24px}
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+.form-label .req{color:var(--red)}
+.form-select{padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;cursor:pointer;min-width:200px;outline:none;font-family:inherit}
+.form-select:focus{border-color:var(--red)}
+.form-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:inherit}
+.form-input:focus{border-color:var(--red)}
+.form-hint{font-size:11px;color:var(--text2);margin-bottom:6px}
+.form-textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;resize:vertical;min-height:100px;outline:none;font-family:inherit}
+.form-textarea:focus{border-color:var(--red)}
+.editor-wrap{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.editor-toolbar{background:#f5f5f5;padding:6px 10px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center}
+.editor-btn{padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;font-size:12px;font-family:inherit}
+.editor-btn:hover{background:#eee}
+.editor-toolbar textarea{border:none!important;border-radius:0!important}
+.upload-zone{border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;background:#fafafa}
+.upload-zone p{font-size:12px;color:var(--text2);margin-bottom:10px}
+.upload-zone-btns{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+.form-submit{text-align:center;padding-top:8px;border-top:1px solid var(--border);margin-top:4px}
+.success-box{background:#e8f5e9;border:1px solid #a5d6a7;border-radius:12px;padding:32px;text-align:center;max-width:500px;margin:0 auto}
+.success-icon{width:56px;height:56px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;color:#fff}
+.success-title{font-size:17px;font-weight:700;color:#1b5e20;margin-bottom:6px}
+.success-sub{font-size:13px;color:#2e7d32;margin-bottom:20px}
+.success-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* CHAMADOS LIST */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-select{padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#fff;cursor:pointer;font-family:inherit}
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f9f9f9;padding:10px 14px;text-align:left;font-weight:600;font-size:11px;color:var(--text2);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr.clickable:hover td{background:#fafafa;cursor:pointer}
+.table-empty{padding:40px;text-align:center;color:var(--text2);font-size:13px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:500}
+.badge-aguardando{background:#e8f5e9;color:#2e7d32}
+.badge-atendimento{background:#e3f2fd;color:#1565c0}
+.badge-fechado{background:#f5f5f5;color:#666}
+.badge-baixa{background:#f9fbe7;color:#827717;border:1px solid #c5ca38}
+.badge-media{background:#fff3e0;color:#e65100}
+.badge-alta{background:#ffebee;color:#c62828}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
+.dot-green{background:#43a047}
+.dot-blue{background:#1e88e5}
+.dot-gray{background:#9e9e9e}
+.tlink{color:var(--red);font-weight:600;cursor:pointer}
+.tlink:hover{text-decoration:underline}
+
+/* TICKET DETAIL */
+.detail-layout{display:flex;height:100%;gap:0;min-height:0;overflow:hidden}
+.detail-main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.detail-header{padding:12px 20px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.detail-header .status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.detail-tabs-col{width:140px;min-width:140px;border-right:1px solid var(--border);padding:12px;background:#fff;flex-shrink:0}
+.detail-body{flex:1;display:flex;overflow:hidden}
+.detail-tab-item{padding:7px 10px;border-radius:6px;font-size:12px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.detail-tab-item:hover{background:#f5f5f5}
+.detail-tab-item.active{background:#f5f5f5;color:var(--text);font-weight:600}
+.tab-cnt{background:var(--red);color:#fff;font-size:10px;padding:1px 6px;border-radius:100px}
+.msgs-area{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px}
+.msg{border-radius:10px;padding:12px 16px}
+.msg-form{background:#e8f5e9;border:1px solid #a5d6a7}
+.msg-auto{background:#fff9c4;border:1px solid #f9a825}
+.msg-user{background:#f5f5f5;border:1px solid var(--border)}
+.msg-meta{font-size:11px;color:var(--text2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.msg-title{font-weight:700;font-size:13px;margin-bottom:8px}
+.msg-field{font-size:12px;margin-bottom:3px}
+.msg-field strong{font-weight:600}
+.msg-text{font-size:13px;line-height:1.5}
+.reply-bar{padding:12px 20px;background:#fff;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-shrink:0}
+.reply-input{flex:1;padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:inherit}
+.reply-input:focus{border-color:var(--red)}
+.detail-sidebar{width:260px;min-width:260px;border-left:1px solid var(--border);padding:16px;overflow-y:auto;background:#fff;flex-shrink:0}
+.detail-section-title{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.detail-row{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid #f0f0f0;gap:8px}
+.detail-row:last-child{border-bottom:none}
+.detail-row-lbl{font-size:11px;color:var(--text2);flex-shrink:0}
+.detail-row-val{font-size:11px;font-weight:500;text-align:right;max-width:140px}
+.actor-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.actor-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0}
+
+/* ADMIN */
+.admin-grid{display:grid;gap:16px}
+.admin-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.admin-card-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.admin-card-title{font-size:14px;font-weight:600}
+.admin-card-body{padding:16px 20px}
+.user-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.user-row:last-child{border-bottom:none}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:500}
+.user-email{font-size:11px;color:var(--text2)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;display:none}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:28px;width:100%;max-width:440px}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;z-index:9999;transition:all 0.3s;opacity:0;transform:translateY(8px);pointer-events:none}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast.error{background:#c62828}
+#toast.success{background:#2e7d32}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--text2);font-size:14px;gap:10px}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .forms-layout{grid-template-columns:1fr}
+  .forms-sidebar,.forms-recent-col{display:none}
+  .quick-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .detail-sidebar{display:none}
+  .detail-tabs-col{display:none}
+  .topbar-info{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-logo">
+    <h1><span>WFF</span>OOD</h1>
+    <p>Sistema de Chamados — Manutenção</p>
+  </div>
+  <div class="login-card">
+    <div class="login-error" id="login-error"></div>
+    <label>Usuário (e-mail)</label>
+    <input type="email" id="login-email" placeholder="seu@email.com" />
+    <label>Senha <a class="forgot" onclick="showForgot()">Esqueceu sua senha?</a></label>
+    <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <input type="checkbox" id="remember" checked style="width:auto;margin:0" />
+      <label for="remember" style="color:rgba(255,255,255,0.8);font-size:12px;cursor:pointer">Lembrar de mim</label>
+    </div>
+    <button class="login-btn" onclick="doLogin()" id="login-btn">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="layout">
+    <div class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-inner">
+          <div class="brand-icon">W</div>
+          <div class="brand-text">
+            <div class="brand-name">WFFOOD</div>
+            <div class="brand-sub">Suporte Interno</div>
+          </div>
+        </div>
+      </div>
+      <nav id="nav">
+        <div class="nav-item active" onclick="navigate('home')" id="nav-home">
+          <span class="icon">🏠</span><span class="nav-label">Home</span>
+        </div>
+        <div class="nav-item" onclick="navigate('formularios')" id="nav-formularios">
+          <span class="icon">📋</span><span class="nav-label">Formulários</span>
+        </div>
+        <div class="nav-item" onclick="navigate('chamados')" id="nav-chamados">
+          <span class="icon">🎫</span><span class="nav-label">Chamados</span>
+        </div>
+        <div class="nav-item" onclick="navigate('admin')" id="nav-admin" style="display:none">
+          <span class="icon">⚙️</span><span class="nav-label">Usuários</span>
+        </div>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="sidebar-foot-btn" onclick="toggleSidebar()">
+          <span>◀</span><span class="nav-label"> Recolher</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="topbar">
+        <div class="breadcrumb" id="breadcrumb">
+          <span>🏠</span> <a onclick="navigate('home')">Home</a>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-info">
+            <div class="client-lbl">Cliente</div>
+            <div class="client-name" id="topbar-name">WFFOOD</div>
+          </div>
+          <div class="avatar-btn" onclick="toggleDD()" id="avatar-btn">LT
+            <div class="dropdown" id="user-dd" onclick="event.stopPropagation()">
+              <div class="dd-head">
+                <div class="dd-username" id="dd-name">—</div>
+                <div class="dd-email" id="dd-email">—</div>
+              </div>
+              <div class="dd-item" onclick="navigate('admin');closeDD()"><span class="icon">⚙️</span> Minhas configurações</div>
+              <div class="dd-separator"></div>
+              <div class="dd-item danger" onclick="doLogout()"><span class="icon">🚪</span> Sair</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page-content" id="page-content">
+        <div class="loading"><div class="spinner"></div> Carregando...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO USUÁRIO -->
+<div class="modal-overlay" id="modal-user">
+  <div class="modal">
+    <div class="modal-title">Adicionar usuário</div>
+    <div class="form-group">
+      <label class="form-label">Nome completo <span class="req">*</span></label>
+      <input type="text" class="form-input" id="new-nome" placeholder="Ex: João da Silva" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">E-mail <span class="req">*</span></label>
+      <input type="email" class="form-input" id="new-email" placeholder="joao@exemplo.com" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Senha provisória <span class="req">*</span></label>
+      <input type="text" class="form-input" id="new-senha" placeholder="Mínimo 6 caracteres" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Papel <span class="req">*</span></label>
+      <select class="form-select" id="new-papel" style="width:100%">
+        <option value="gerente">Gerente de Loja</option>
+        <option value="tecnico">Técnico</option>
+        <option value="gestor">Gestor</option>
+      </select>
+    </div>
+    <div class="form-group" id="new-loja-group">
+      <label class="form-label">Loja <span class="req">*</span></label>
+      <select class="form-select" id="new-loja" style="width:100%">
+        <option value="">Selecione a loja...</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-user')">Cancelar</button>
+      <button class="btn btn-primary" onclick="criarUsuario()">Criar usuário</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPA_URL = 'https://xqacclecfdbsgrvvzwts.supabase.co';
+const SUPA_KEY = 'sb_publishable_1t6cISCpD6zIEw3VjxNwOA_vZjefepH';
+const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+let currentUser = null;
+let currentProfile = null;
+let allLojas = [];
+let sidebarCollapsed = false;
+
+// ===================== AUTH =====================
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const btn = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-error');
+  if (!email || !pass) { showErr('Preencha e-mail e senha.'); return; }
+  btn.textContent = 'Entrando...';
+  btn.disabled = true;
+  errEl.style.display = 'none';
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+  btn.textContent = 'Entrar';
+  btn.disabled = false;
+  if (error) { showErr(error.message === 'Invalid login credentials' ? 'E-mail ou senha incorretos.' : error.message); return; }
+  await initApp(data.user);
+}
+
+function showErr(msg) {
+  const e = document.getElementById('login-error');
+  e.textContent = msg;
+  e.style.display = 'block';
+}
+
+async function initApp(user) {
+  currentUser = user;
+  const { data: profile } = await supabase.from('perfis').select('*').eq('id', user.id).single();
+  currentProfile = profile;
+  const { data: lojas } = await supabase.from('lojas').select('*').order('codigo');
+  allLojas = lojas || [];
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const initials = (profile?.nome || user.email).split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+  document.getElementById('avatar-btn').childNodes[0].textContent = initials;
+  document.getElementById('dd-name').textContent = profile?.nome || user.email;
+  document.getElementById('dd-email').textContent = user.email;
+  document.getElementById('topbar-name').textContent = profile?.papel === 'gestor' ? 'Gestor — Todas as lojas' : (allLojas.find(l => l.id === profile?.loja_id)?.nome || 'WFFOOD');
+  if (profile?.papel === 'gestor') document.getElementById('nav-admin').style.display = 'flex';
+  navigate('home');
+}
+
+async function doLogout() {
+  await supabase.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-email').value = '';
+  document.getElementById('nav-admin').style.display = 'none';
+  closeDD();
+}
+
+function showForgot() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) { alert('Digite seu e-mail primeiro.'); return; }
+  supabase.auth.resetPasswordForEmail(email).then(() => {
+    alert('Link de recuperação enviado para ' + email);
+  });
+}
+
+// ===================== NAVIGATION =====================
+function navigate(page, params = {}) {
+  closeDD();
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navMap = { home: 'nav-home', formularios: 'nav-formularios', chamados: 'nav-chamados', 'novo-chamado': 'nav-formularios', 'ticket-detail': 'nav-chamados', admin: 'nav-admin' };
+  const navEl = document.getElementById(navMap[page]);
+  if (navEl) navEl.classList.add('active');
+  const pc = document.getElementById('page-content');
+  const bc = document.getElementById('breadcrumb');
+  if (page === 'home') {
+    bc.innerHTML = `🏠 <a onclick="navigate('home')">Home</a>`;
+    renderHome(pc);
+  } else if (page === 'formularios') {
+    bc.innerHTML = `🏠 <a onclick="navigate('home')">Home</a> <span class="sep">›</span> Formulários`;
+    renderFormularios(pc);
+  } else if (page === 'novo-chamado') {
+    bc.innerHTML = `🏠 <a onclick="navigate('home')">Home</a> <span class="sep">›</span> <a onclick="navigate('formularios')">Formulários</a> <span class="sep">›</span> ${params.cat || 'Novo Chamado'}`;
+    renderNovoChamado(pc, params.cat);
+  } else if (page === 'chamados') {
+    bc.innerHTML = `🏠 <a onclick="navigate('home')">Home</a> <span class="sep">›</span> Chamados`;
+    renderChamados(pc);
+  } else if (page === 'ticket-detail') {
+    bc.innerHTML = `🏠 <a onclick="navigate('home')">Home</a> <span class="sep">›</span> <a onclick="navigate('chamados')">Chamados</a> <span class="sep">›</span> #${params.id}`;
+    renderDetail(pc, params.id);
+  } else if (page === 'admin') {
+    bc.innerHTML = `🏠 <a onclick="navigate('home')">Home</a> <span class="sep">›</span> Gerenciar Usuários`;
+    renderAdmin(pc);
+  }
+}
+
+// ===================== HELPERS =====================
+function sbadge(s) {
+  if (s === 'aguardando') return `<span class="badge badge-aguardando"><span class="dot dot-green"></span> Aguardando</span>`;
+  if (s === 'em_atendimento') return `<span class="badge badge-atendimento"><span class="dot dot-blue"></span> Em atendimento</span>`;
+  return `<span class="badge badge-fechado"><span class="dot dot-gray"></span> Fechado</span>`;
+}
+function pbadge(p) {
+  if (p === 'alta') return `<span class="badge badge-alta">Alta</span>`;
+  if (p === 'media') return `<span class="badge badge-media">Média</span>`;
+  return `<span class="badge badge-baixa">Baixa</span>`;
+}
+function catLabel(c) {
+  return c === 'estrutural' ? '🏗 Manutenção Estrutural' : c === 'equipamentos' ? '🔧 Manutenção Equipamentos' : '💻 Manutenção TI';
+}
+function lojaName(id) {
+  const l = allLojas.find(x => x.id === id);
+  return l ? `${l.codigo} — ${l.nome}` : '—';
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d);
+  return dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+function toast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => t.className = '', 3000);
+}
+
+// ===================== HOME =====================
+async function renderHome(pc) {
+  pc.innerHTML = `<div class="loading"><div class="spinner"></div> Carregando...</div>`;
+  let query = supabase.from('chamados').select('*', { count: 'exact' });
+  if (currentProfile?.papel === 'gerente') query = query.eq('loja_id', currentProfile.loja_id);
+  const { data: todos } = await query;
+  const abertos = (todos || []).filter(t => t.status !== 'fechado').length;
+  const aguardando = (todos || []).filter(t => t.status === 'aguardando').length;
+  const fechados = (todos || []).filter(t => t.status === 'fechado').length;
+  let recentes = (todos || []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 4);
+  pc.innerHTML = `
+    <div class="home-title">Bem-vindo, ${currentProfile?.nome?.split(' ')[0] || 'Lucas'} 👋</div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num">${abertos}</div><div class="stat-lbl">🎫 Chamados em aberto</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--red)">${aguardando}</div><div class="stat-lbl">⏳ Aguardando atendimento</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--green)">${fechados}</div><div class="stat-lbl">✅ Fechados</div></div>
+    </div>
+    <div class="quick-grid">
+      <div class="quick-card">
+        <div class="quick-card-title">📋 Últimos chamados</div>
+        ${recentes.length === 0 ? '<p style="font-size:12px;color:var(--text2)">Nenhum chamado ainda.</p>' : recentes.map(t => `
+          <div class="recent-item">
+            <div>
+              <div class="recent-link" onclick="navigate('ticket-detail',{id:${t.id}})">#${t.id} — ${t.titulo.substring(0,45)}${t.titulo.length>45?'...':''}</div>
+              <div class="recent-date">${fmtDate(t.created_at)}</div>
+            </div>
+            ${sbadge(t.status)}
+          </div>`).join('')}
+        <div style="margin-top:10px"><button class="btn btn-sm" onclick="navigate('chamados')">Ver todos →</button></div>
+      </div>
+      <div class="quick-card">
+        <div class="quick-card-title">➕ Abrir novo chamado</div>
+        <button class="quick-btn" onclick="navigate('novo-chamado',{cat:'estrutural'})"><span class="quick-dot" style="background:var(--blue)"></span> Manutenção Estrutural</button>
+        <button class="quick-btn" onclick="navigate('novo-chamado',{cat:'equipamentos'})"><span class="quick-dot" style="background:var(--green)"></span> Manutenção Equipamentos</button>
+        <button class="quick-btn" onclick="navigate('novo-chamado',{cat:'ti'})"><span class="quick-dot" style="background:var(--purple)"></span> Manutenção TI (Informática)</button>
+      </div>
+    </div>`;
+}
+
+// ===================== FORMULÁRIOS =====================
+function renderFormularios(pc) {
+  const cats = [
+    { key: 'estrutural', icon: '🏗', cls: 'est', name: 'Manutenção Estrutural', desc: 'Teto, piso, paredes, elétrica, hidráulica, pintura' },
+    { key: 'equipamentos', icon: '🔧', cls: 'eqp', name: 'Manutenção Equipamentos', desc: 'Fritadeiras, chapas, freezers, estufas, GLP' },
+    { key: 'ti', icon: '💻', cls: 'ti', name: 'Manutenção TI (Informática)', desc: 'PDV, redes, impressoras, KDS, tablets, sistemas' },
+  ];
+  pc.innerHTML = `
+    <div class="section-title">Formulários</div>
+    <div class="forms-layout">
+      <div class="forms-sidebar">
+        <div class="forms-sidebar-title">Categorias</div>
+        ${cats.map(c => `<div class="forms-sidebar-item" onclick="navigate('novo-chamado',{cat:'${c.key}'})">${c.name}</div>`).join('')}
+      </div>
+      <div>
+        <div class="cat-cards">
+          ${cats.map(c => `
+            <div class="cat-card" onclick="navigate('novo-chamado',{cat:'${c.key}'})">
+              <div class="cat-icon ${c.cls}">${c.icon}</div>
+              <div class="cat-info">
+                <div class="cat-name">${c.name}</div>
+                <div class="cat-desc">${c.desc}</div>
+              </div>
+              <span style="color:var(--text2);font-size:18px">›</span>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="forms-recent-col">
+        <div class="forms-recent-title">Últimos chamados</div>
+        <div id="forms-recent-list"><div class="spinner" style="margin:10px auto;display:block"></div></div>
+      </div>
+    </div>`;
+  loadFormsRecent();
+}
+async function loadFormsRecent() {
+  let q = supabase.from('chamados').select('id,titulo,created_at').order('created_at', { ascending: false }).limit(5);
+  if (currentProfile?.papel === 'gerente') q = q.eq('loja_id', currentProfile.loja_id);
+  const { data } = await q;
+  const el = document.getElementById('forms-recent-list');
+  if (!el) return;
+  if (!data || data.length === 0) { el.innerHTML = '<p style="font-size:11px;color:var(--text2)">Nenhum chamado ainda.</p>'; return; }
+  el.innerHTML = data.map(t => `<div class="forms-recent-item"><div class="forms-recent-link" onclick="navigate('ticket-detail',{id:${t.id}})">#${t.id} — ${t.titulo.substring(0,30)}...</div><div style="font-size:10px;color:var(--text2)">${fmtDate(t.created_at)}</div></div>`).join('');
+}
+
+// ===================== NOVO CHAMADO =====================
+function renderNovoChamado(pc, cat) {
+  const labels = { estrutural: '🏗 Manutenção Estrutural', equipamentos: '🔧 Manutenção Equipamentos', ti: '💻 Manutenção TI (Informática)' };
+  const lojaOptions = allLojas.map(l => `<option value="${l.id}">${l.codigo} — ${l.nome}</option>`).join('');
+  const lojaDefault = currentProfile?.papel === 'gerente' && currentProfile?.loja_id
+    ? `<select class="form-select" id="f-loja" disabled style="width:100%"><option value="${currentProfile.loja_id}">${lojaName(currentProfile.loja_id)}</option></select>`
+    : `<select class="form-select" id="f-loja" style="width:100%"><option value="">Selecione a loja...</option>${lojaOptions}</select>`;
+  pc.innerHTML = `
+    <div class="form-title">${labels[cat] || 'Novo Chamado'}</div>
+    <div class="form-card">
+      <div class="form-tab-bar"><span class="form-tab">Chamado</span></div>
+      <div class="form-body" id="form-body">
+        <div class="form-group">
+          <label class="form-label">Selecione a loja <span class="req">*</span></label>
+          ${lojaDefault}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição do chamado <span class="req">*</span></label>
+          <div class="editor-wrap">
+            <div class="editor-toolbar">
+              <button class="editor-btn" onclick="fmtText('bold')"><b>B</b></button>
+              <button class="editor-btn" onclick="fmtText('italic')"><i>I</i></button>
+              <span style="color:var(--border)">|</span>
+              <span style="font-size:11px;color:var(--text2)">Descreva o problema detalhadamente</span>
+            </div>
+            <textarea class="form-textarea" id="f-desc" style="border:none;border-radius:0;border-top:1px solid var(--border)" placeholder="Ex: Fritadeira 01 não está aquecendo corretamente. Temperatura não ultrapassa 120°C mesmo no máximo..."></textarea>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Número do chamado externo</label>
+          <input type="text" class="form-input" id="f-externo" placeholder="Opcional — número do chamado no sistema do fornecedor" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prioridade</label>
+          <select class="form-select" id="f-prio">
+            <option value="baixa">Baixa — Não urgente</option>
+            <option value="media">Média — Impacta operação parcialmente</option>
+            <option value="alta">Alta — Operação comprometida</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Número de telefone <span class="req">*</span></label>
+          <p class="form-hint">Formato: DDD 9XXXX-XXXX</p>
+          <input type="tel" class="form-input" id="f-tel" placeholder="Ex: 85 99999-9999" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Anexo (foto/vídeo)</label>
+          <div class="upload-zone">
+            <p>📎 Arraste e solte arquivos aqui, ou</p>
+            <div class="upload-zone-btns">
+              <button class="btn btn-sm" onclick="document.getElementById('f-file').click()">Escolher arquivos</button>
+              <span id="file-names" style="font-size:11px;color:var(--text2)">Nenhum arquivo escolhido</span>
+            </div>
+            <input type="file" id="f-file" multiple accept="image/*,video/*,.pdf" style="display:none" onchange="showFileNames(this)" />
+            <p style="font-size:10px;color:var(--text2);margin-top:8px">Máx. 20MB — Imagens, vídeos ou PDF</p>
+          </div>
+        </div>
+        <div class="form-submit">
+          <button class="btn btn-primary" onclick="submitChamado('${cat}')">✉️ Enviar chamado</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function showFileNames(input) {
+  const names = Array.from(input.files).map(f => f.name).join(', ');
+  document.getElementById('file-names').textContent = names || 'Nenhum arquivo escolhido';
+}
+
+async function submitChamado(cat) {
+  const lojaEl = document.getElementById('f-loja');
+  const desc = document.getElementById('f-desc').value.trim();
+  const tel = document.getElementById('f-tel').value.trim();
+  const prio = document.getElementById('f-prio').value;
+  const loja_id = lojaEl.value;
+  if (!loja_id) { toast('Selecione a loja!', 'error'); return; }
+  if (!desc) { toast('Preencha a descrição!', 'error'); return; }
+  if (!tel) { toast('Informe o telefone!', 'error'); return; }
+  const lojaInfo = allLojas.find(l => l.id === loja_id);
+  const titulo = `${catLabel(cat).replace(/^.+ /, '')} — ${lojaInfo?.codigo || ''}`;
+  const { data, error } = await supabase.from('chamados').insert({
+    titulo, descricao: desc, categoria: cat, prioridade: prio,
+    loja_id, criado_por: currentUser.id
+  }).select().single();
+  if (error) { toast('Erro ao criar chamado: ' + error.message, 'error'); return; }
+  await supabase.from('mensagens').insert({
+    chamado_id: data.id,
+    autor_id: currentUser.id,
+    conteudo: `📋 *Dados do formulário*\n\n**Loja:** ${lojaInfo?.codigo} — ${lojaInfo?.nome}\n**Categoria:** ${catLabel(cat)}\n**Problema:** ${desc}\n**Prioridade:** ${prio}\n**Telefone:** ${tel}`
+  });
+  await supabase.from('mensagens').insert({
+    chamado_id: data.id,
+    autor_id: null,
+    conteudo: `✅ *Confirmação automática*\n\nOlá! Recebemos sua solicitação. Em breve um técnico iniciará o atendimento.\n\n📌 *Dica:* Inclua fotos ou vídeos para agilizar a análise.\n\n📞 Em caso de urgência, entre em contato pelo WhatsApp informando o número do chamado #${data.id}.`
+  });
+  const fb = document.getElementById('form-body');
+  fb.innerHTML = `
+    <div class="success-box">
+      <div class="success-icon">✅</div>
+      <div class="success-title">Chamado #${data.id} aberto com sucesso!</div>
+      <div class="success-sub">Em breve um técnico iniciará o atendimento. Você receberá atualizações por aqui.</div>
+      <div class="success-btns">
+        <button class="btn btn-primary" onclick="navigate('ticket-detail',{id:${data.id}})">Ver chamado</button>
+        <button class="btn" onclick="navigate('chamados')">Ver todos os chamados</button>
+      </div>
+    </div>`;
+}
+
+// ===================== CHAMADOS LIST =====================
+async function renderChamados(pc) {
+  pc.innerHTML = `<div class="loading"><div class="spinner"></div> Carregando chamados...</div>`;
+  let q = supabase.from('chamados').select('*').order('created_at', { ascending: false });
+  if (currentProfile?.papel === 'gerente') q = q.eq('loja_id', currentProfile.loja_id);
+  const { data: chamados } = await q;
+  pc.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div class="filter-bar">
+        <select class="filter-select" id="filter-status" onchange="filterChamados()">
+          <option value="">Todos os status</option>
+          <option value="aguardando">Aguardando</option>
+          <option value="em_atendimento">Em atendimento</option>
+          <option value="fechado">Fechado</option>
+        </select>
+        <select class="filter-select" id="filter-cat" onchange="filterChamados()">
+          <option value="">Todas as categorias</option>
+          <option value="estrutural">Estrutural</option>
+          <option value="equipamentos">Equipamentos</option>
+          <option value="ti">TI</option>
+        </select>
+        <select class="filter-select" id="filter-prio" onchange="filterChamados()">
+          <option value="">Todas as prioridades</option>
+          <option value="alta">Alta</option>
+          <option value="media">Média</option>
+          <option value="baixa">Baixa</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="navigate('formularios')">➕ Novo chamado</button>
+    </div>
+    <div class="table-wrap" id="chamados-table"></div>
+    <div style="margin-top:8px;font-size:12px;color:var(--text2)" id="chamados-count"></div>`;
+  window._chamadosData = chamados || [];
+  filterChamados();
+}
+
+function filterChamados() {
+  const status = document.getElementById('filter-status')?.value;
+  const cat = document.getElementById('filter-cat')?.value;
+  const prio = document.getElementById('filter-prio')?.value;
+  let list = window._chamadosData || [];
+  if (status) list = list.filter(c => c.status === status);
+  if (cat) list = list.filter(c => c.categoria === cat);
+  if (prio) list = list.filter(c => c.prioridade === prio);
+  const el = document.getElementById('chamados-table');
+  const cnt = document.getElementById('chamados-count');
+  if (!el) return;
+  if (list.length === 0) {
+    el.innerHTML = `<div class="table-empty">Nenhum chamado encontrado.</div>`;
+    if (cnt) cnt.textContent = '';
+    return;
+  }
+  el.innerHTML = `<table>
+    <thead><tr>
+      <th>ID</th><th>Título</th><th>Loja</th><th>Categoria</th><th>Prioridade</th><th>Status</th><th>Data de Abertura</th>
+    </tr></thead>
+    <tbody>${list.map(c => `
+      <tr class="clickable" onclick="navigate('ticket-detail',{id:${c.id}})">
+        <td style="color:var(--text2);font-weight:600">#${c.id}</td>
+        <td><span class="tlink">${c.titulo}</span></td>
+        <td style="font-size:11px;color:var(--text2)">${lojaName(c.loja_id)}</td>
+        <td><span style="font-size:12px">${catLabel(c.categoria)}</span></td>
+        <td>${pbadge(c.prioridade)}</td>
+        <td>${sbadge(c.status)}</td>
+        <td style="font-size:11px;color:var(--text2)">${fmtDate(c.created_at)}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  if (cnt) cnt.textContent = `Exibindo ${list.length} chamado${list.length !== 1 ? 's' : ''}`;
+}
+
+// ===================== TICKET DETAIL =====================
+async function renderDetail(pc, id) {
+  pc.innerHTML = `<div class="loading"><div class="spinner"></div> Carregando chamado...</div>`;
+  const { data: chamado } = await supabase.from('chamados').select('*').eq('id', id).single();
+  if (!chamado) { pc.innerHTML = '<p>Chamado não encontrado.</p>'; return; }
+  const { data: msgs } = await supabase.from('mensagens').select('*').eq('chamado_id', id).order('created_at');
+  const loja = allLojas.find(l => l.id === chamado.loja_id);
+  const statusColor = chamado.status === 'aguardando' ? '#43a047' : chamado.status === 'em_atendimento' ? '#1e88e5' : '#9e9e9e';
+  pc.style.padding = '0';
+  pc.style.overflow = 'hidden';
+  pc.style.display = 'flex';
+  pc.style.flexDirection = 'column';
+  pc.innerHTML = `
+    <div class="detail-layout" style="flex:1">
+      <div class="detail-main">
+        <div class="detail-header">
+          <div class="status-dot" style="background:${statusColor}"></div>
+          <span style="font-size:14px;font-weight:700">${chamado.titulo} (#${chamado.id})</span>
+          ${currentProfile?.papel !== 'gerente' ? `
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <select class="filter-select" id="status-sel" onchange="updateStatus(${chamado.id},this.value)">
+              <option value="aguardando" ${chamado.status==='aguardando'?'selected':''}>Aguardando</option>
+              <option value="em_atendimento" ${chamado.status==='em_atendimento'?'selected':''}>Em atendimento</option>
+              <option value="fechado" ${chamado.status==='fechado'?'selected':''}>Fechado</option>
+            </select>
+          </div>` : ''}
+        </div>
+        <div class="detail-body">
+          <div class="detail-tabs-col">
+            <div class="detail-tab-item active">Chamado <span class="tab-cnt">${(msgs||[]).length}</span></div>
+            <div class="detail-tab-item">Estatísticas</div>
+            <div class="detail-tab-item">Imprimir PDF</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+            <div class="msgs-area" id="msgs-area">
+              ${(msgs||[]).map(m => renderMsg(m)).join('')}
+            </div>
+            <div class="reply-bar">
+              <input type="text" class="reply-input" id="reply-input" placeholder="Escreva uma mensagem..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){sendMsg(${chamado.id});event.preventDefault()}" />
+              <button class="btn btn-primary btn-sm" onclick="sendMsg(${chamado.id})">✉️ Enviar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="detail-sidebar">
+        <div class="detail-section-title">ℹ️ Chamado</div>
+        ${[
+          ['Entidade', loja ? `${loja.codigo} — ${loja.nome}` : '—'],
+          ['Data de abertura', fmtDate(chamado.created_at)],
+          ['Categoria', catLabel(chamado.categoria)],
+          ['Status', chamado.status],
+          ['Prioridade', chamado.prioridade],
+        ].map(([l,v]) => `<div class="detail-row"><div class="detail-row-lbl">${l}</div><div class="detail-row-val">${v}</div></div>`).join('')}
+        <div class="detail-section-title" style="margin-top:16px">👤 Requerente</div>
+        <div class="actor-row">
+          <div class="actor-avatar" style="background:var(--red)">${(currentProfile?.nome||'U')[0]}</div>
+          <div>
+            <div style="font-size:12px;font-weight:500">${currentProfile?.nome || '—'}</div>
+            <div style="font-size:10px;color:var(--text2)">${currentProfile?.papel || '—'}</div>
+          </div>
+        </div>
+        <div class="detail-section-title" style="margin-top:8px">🔧 Atribuído</div>
+        <div style="font-size:12px;color:var(--text2)">Pendente</div>
+      </div>
+    </div>`;
+}
+
+function renderMsg(m) {
+  const isForm = m.conteudo.startsWith('📋');
+  const isAuto = m.conteudo.startsWith('✅');
+  const cls = isForm ? 'msg-form' : isAuto ? 'msg-auto' : 'msg-user';
+  const author = isAuto ? '🤖 Suporte WFFOOD (automático)' : (currentProfile?.nome || 'Usuário');
+  const content = m.conteudo
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+  return `<div class="msg ${cls}">
+    <div class="msg-meta">🕐 ${fmtDate(m.created_at)} &nbsp; 👤 ${author}</div>
+    <div class="msg-text">${content}</div>
+  </div>`;
+}
+
+async function sendMsg(chamadoId) {
+  const input = document.getElementById('reply-input');
+  const txt = input.value.trim();
+  if (!txt) return;
+  input.value = '';
+  const { data: msg } = await supabase.from('mensagens').insert({
+    chamado_id: chamadoId, autor_id: currentUser.id, conteudo: txt
+  }).select().single();
+  if (msg) {
+    const area = document.getElementById('msgs-area');
+    if (area) { area.innerHTML += renderMsg(msg); area.scrollTop = area.scrollHeight; }
+  }
+}
+
+async function updateStatus(id, newStatus) {
+  const { error } = await supabase.from('chamados').update({ status: newStatus }).eq('id', id);
+  if (error) toast('Erro ao atualizar status', 'error');
+  else toast('Status atualizado!', 'success');
+}
+
+// ===================== ADMIN =====================
+async function renderAdmin(pc) {
+  if (currentProfile?.papel !== 'gestor') {
+    pc.innerHTML = '<p style="color:var(--text2)">Acesso restrito a gestores.</p>'; return;
+  }
+  pc.innerHTML = `<div class="loading"><div class="spinner"></div> Carregando usuários...</div>`;
+  const { data: users } = await supabase.from('perfis').select('*').order('nome');
+  pc.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div class="section-title" style="margin:0">Gerenciar Usuários</div>
+      <button class="btn btn-primary" onclick="openModalUser()">➕ Adicionar usuário</button>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <div class="admin-card-title">👥 Usuários cadastrados (${(users||[]).length})</div>
+      </div>
+      <div class="admin-card-body">
+        ${(users||[]).length === 0 ? '<p style="color:var(--text2);font-size:13px">Nenhum usuário cadastrado ainda.</p>' :
+          (users||[]).map(u => `
+            <div class="user-row">
+              <div class="actor-avatar" style="background:${u.papel==='gestor'?'var(--red)':u.papel==='tecnico'?'var(--purple)':'var(--blue)'};width:36px;height:36px">
+                ${u.nome[0]}
+              </div>
+              <div class="user-info">
+                <div class="user-name">${u.nome}</div>
+                <div class="user-email">${u.email}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span class="badge ${u.papel==='gestor'?'badge-alta':u.papel==='tecnico'?'badge-atendimento':'badge-aguardando'}">${u.papel}</span>
+                <span style="font-size:11px;color:var(--text2)">${lojaName(u.loja_id)}</span>
+              </div>
+            </div>`).join('')}
+      </div>
+    </div>`;
+  // Preenche select de lojas no modal
+  const selLoja = document.getElementById('new-loja');
+  if (selLoja && selLoja.options.length <= 1) {
+    allLojas.forEach(l => {
+      const opt = document.createElement('option');
+      opt.value = l.id;
+      opt.textContent = `${l.codigo} — ${l.nome}`;
+      selLoja.appendChild(opt);
+    });
+  }
+}
+
+function openModalUser() {
+  document.getElementById('modal-user').classList.add('open');
+  document.getElementById('new-nome').value = '';
+  document.getElementById('new-email').value = '';
+  document.getElementById('new-senha').value = '';
+  document.getElementById('new-papel').value = 'gerente';
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+async function criarUsuario() {
+  const nome = document.getElementById('new-nome').value.trim();
+  const email = document.getElementById('new-email').value.trim();
+  const senha = document.getElementById('new-senha').value.trim();
+  const papel = document.getElementById('new-papel').value;
+  const loja_id = document.getElementById('new-loja').value || null;
+  if (!nome || !email || !senha) { toast('Preencha todos os campos obrigatórios!', 'error'); return; }
+  if (papel === 'gerente' && !loja_id) { toast('Selecione a loja do gerente!', 'error'); return; }
+  const { data, error } = await supabase.auth.signUp({ email, password: senha, options: { data: { nome } } });
+  if (error) { toast('Erro: ' + error.message, 'error'); return; }
+  if (data.user) {
+    await supabase.from('perfis').insert({ id: data.user.id, nome, email, papel, loja_id: loja_id || null });
+  }
+  toast(`Usuário ${nome} criado com sucesso!`, 'success');
+  closeModal('modal-user');
+  navigate('admin');
+}
+
+// ===================== UI HELPERS =====================
+function toggleDD() { document.getElementById('user-dd').classList.toggle('open'); }
+function closeDD() { document.getElementById('user-dd').classList.remove('open'); }
+document.addEventListener('click', e => { if (!e.target.closest('.avatar-btn')) closeDD(); });
+
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  const sb = document.getElementById('sidebar');
+  sb.classList.toggle('collapsed', sidebarCollapsed);
+  document.querySelectorAll('.nav-label, .brand-text').forEach(el => {
+    el.style.display = sidebarCollapsed ? 'none' : '';
+  });
+}
+
+function fmtText(cmd) { document.execCommand(cmd); }
+
+// ===================== INIT =====================
+supabase.auth.getSession().then(({ data: { session } }) => {
+  if (session) initApp(session.user);
+});
+</script>
+</body>
+</html>

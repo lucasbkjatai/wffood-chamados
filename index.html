@@ -339,6 +339,10 @@ tbody tr.cr:hover td{background:#fafafa;cursor:pointer}
   body,.page{background:#fff;padding:0}
   .card,.tw,.fcard{box-shadow:none}
 }
+
+.lbtn{width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.4px;transition:all .2s;box-shadow:0 6px 20px rgba(229,57,53,.35)}
+.lbtn:hover{background:#c62828;box-shadow:0 10px 28px rgba(229,57,53,.45);transform:translateY(-1px)}
+.lbtn:disabled{opacity:.6;cursor:not-allowed;transform:none}
 </style>
 </head>
 <body>
@@ -426,6 +430,7 @@ tbody tr.cr:hover td{background:#fafafa;cursor:pointer}
       <select class="fsel" id="upapel" style="width:100%" onchange="toggleLojaFg()">
         <option value="gerente">Gerente de Loja</option>
         <option value="tecnico">Técnico de Manutenção</option>
+        <option value="supervisor">Supervisor (vê tudo, sem gerenciar usuários)</option>
         <option value="gestor">Gestor (acesso total)</option>
       </select></div>
     <div class="fg" id="ulojafg"><label class="fl">Loja <span class="req">*</span></label>
@@ -490,7 +495,8 @@ async function boot(user){
   ['uav','uav-mob'].forEach(id=>{const el=document.getElementById(id);if(el)el.childNodes[0].textContent=ini;});
   ['ddnm','ddnm-mob'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=p?.nome||user.email;});
   ['ddem','ddem-mob'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=user.email;});
-  document.getElementById('tbc-n').textContent=p?.papel==='gestor'?'Gestor — Todas as lojas':(LOJAS.find(x=>x.id===p?.loja_id)?.nome||'WFFOOD');
+  const papelLabel={'gestor':'Gestor — Todas as lojas','supervisor':'Supervisor — Todas as lojas','tecnico':'Técnico'};
+  document.getElementById('tbc-n').textContent=papelLabel[p?.papel]||(LOJAS.find(x=>x.id===p?.loja_id)?.nome||'WFFOOD');
   if(p?.papel==='gestor'){
     document.getElementById('ni-admin').style.display='flex';
     document.getElementById('mni-admin').style.display='flex';
@@ -622,7 +628,7 @@ function renderForms(pg){
 /* FORM CHAMADO */
 function renderFormChamado(pg,cat){
   const lOpts=LOJAS.map(l=>`<option value="${l.id}">${l.codigo} — ${l.nome}</option>`).join('');
-  const lojaFld=PROF?.papel==='gerente'&&PROF?.loja_id
+  const lojaFld=(PROF?.papel==='gerente')&&PROF?.loja_id
     ?`<select class="fsel" id="floja" disabled style="width:100%;opacity:.8"><option value="${PROF.loja_id}">${lojaStr(PROF.loja_id)}</option></select>`
     :`<select class="fsel" id="floja" style="width:100%"><option value="">Selecione a loja...</option>${lOpts}</select>`;
   pg.innerHTML=`
@@ -843,7 +849,7 @@ async function renderDetail(pg,id){
       <div class="det-hd">
         <div style="width:10px;height:10px;border-radius:50%;background:${sc};flex-shrink:0"></div>
         <div class="det-title">${c.titulo} (#${c.id})</div>
-        ${PROF?.papel!=='gerente'?`<select class="fsel" style="width:auto;padding:6px 10px;font-size:12px;margin-left:auto" onchange="updStatus(${c.id},this.value)">
+        ${(PROF?.papel==='gestor'||PROF?.papel==='tecnico')?`<select class="fsel" style="width:auto;padding:6px 10px;font-size:12px;margin-left:auto" onchange="updStatus(${c.id},this.value)">
           <option value="aguardando"${c.status==='aguardando'?' selected':''}>Aguardando</option>
           <option value="em_atendimento"${c.status==='em_atendimento'?' selected':''}>Em atendimento</option>
           <option value="fechado"${c.status==='fechado'?' selected':''}>Fechado</option>
@@ -887,7 +893,7 @@ async function renderDetail(pg,id){
       sb.from('perfis').select('nome,email,papel').eq('id',c.criado_por).single().then((res)=>{const cr=res.data;
         const el=document.getElementById('ds-req');
         if(el&&cr){
-          const papel2=cr.papel==='gestor'?'Gestor':cr.papel==='tecnico'?'Técnico':'Gerente de Loja';
+          const papel2=cr.papel==='gestor'?'Gestor':cr.papel==='tecnico'?'Técnico':cr.papel==='supervisor'?'Supervisor':'Gerente de Loja';
           el.innerHTML='<div class="actor-r"><div class="actor-av" style="background:var(--red);width:32px;height:32px">'+cr.nome[0].toUpperCase()+'</div><div><div style="font-size:12px;font-weight:700">'+cr.nome+'</div><div style="font-size:10px;color:var(--tx2)">'+papel2+' · '+cr.email+'</div></div></div>';
         } else if(el) el.innerHTML='<div style="font-size:11px;color:var(--tx3)">—</div>';
       });
@@ -1044,10 +1050,10 @@ async function renderAdmin(pg){
     <div class="adm-body">
       ${(users||[]).length===0?'<p style="padding:16px 0;font-size:13px;color:var(--tx2)">Nenhum usuário.</p>':(users||[]).map(u=>`
       <div class="usr-row" id="usr-${u.id}">
-        <div class="actor-av" style="background:${u.papel==='gestor'?'var(--red)':u.papel==='tecnico'?'var(--pu)':'var(--bl)'};width:38px;height:38px">${(u.nome||'?')[0].toUpperCase()}</div>
+        <div class="actor-av" style="background:${u.papel==='gestor'?'var(--red)':u.papel==='tecnico'?'var(--pu)':u.papel==='supervisor'?'var(--or)':'var(--bl)'};width:38px;height:38px">${(u.nome||'?')[0].toUpperCase()}</div>
         <div class="usr-info"><div class="usr-name">${u.nome}</div><div class="usr-email">${u.email}</div></div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0">
-          <span class="badge ${u.papel==='gestor'?'bh':u.papel==='tecnico'?'ba':'bw'}">${u.papel==='gestor'?'Gestor':u.papel==='tecnico'?'Técnico':'Gerente'}</span>
+          <span class="badge ${u.papel==='gestor'?'bh':u.papel==='tecnico'?'ba':u.papel==='supervisor'?'bm':'bw'}">${u.papel==='gestor'?'Gestor':u.papel==='tecnico'?'Técnico':u.papel==='supervisor'?'Supervisor':'Gerente'}</span>
           ${u.loja_id?'<span style="font-size:10px;color:var(--tx2)">'+lojaStr(u.loja_id)+'</span>':''}
           ${u.id!==ME?.id?'<button onclick="event.stopPropagation();delUser(\''+u.id+'\',\''+u.nome+'\')" style="background:none;border:1px solid #ef9a9a;color:#c62828;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600">🗑 Excluir</button>':'<span style="font-size:10px;color:var(--tx3)">(você)</span>'}
         </div>
